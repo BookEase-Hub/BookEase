@@ -1,0 +1,516 @@
+import tensorflow as tf
+from tensorflow.keras.models import Model
+from tensorflow.keras.layers import Input, Conv2D, UpSampling2D
+
+def super_resolution_model():
+    input_img = Input(shape=(None, None, 3)) # Replace with your input shape
+
+    # Simple CNN architecture for super-resolution
+    x = Conv2D(64, (3, 3), activation='relu', padding='same')(input_img)
+    x = UpSampling2D((2, 2))(x) # Upsampling by a factor of 2
+    x = Conv2D(3, (3, 3), activation='sigmoid', padding='same')(x)
+
+    model = Model(input_img, x)
+    model.compile(optimizer='adam', loss='mean_squared_error')
+
+    return model
+
+# Instantiate and train the model with your data
+sr_model = super_resolution_model()
+# sr_model.fit(...)
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Conv2D, UpSampling2D
+
+def enhance_property_images(input_shape=(None, None, 3)):
+    # Define a simple CNN architecture for image enhancement
+    model = Sequential()
+    model.add(Conv2D(64, (3, 3), activation='relu', padding='same', input_shape=input_shape))
+    model.add(UpSampling2D((2, 2))) # Upsampling by a factor of 2
+    model.add(Conv2D(3, (3, 3), activation='sigmoid', padding='same'))
+
+    # Compile the model with an appropriate optimizer and loss function
+    model.compile(optimizer='adam', loss='mean_squared_error')
+    return model
+
+# Instantiate the model
+enhancement_model = enhance_property_images()
+
+# Train the model with your dataset of property images
+# enhancement_model.fit(...)
+import tensorflow as tf
+from tensorflow.keras.models import Sequential, Model
+from tensorflow.keras.layers import Conv2D, UpSampling2D, Input, Layer
+from tensorflow.keras.layers import Reshape, Flatten, Dense
+from tensorflow_io.experimental.color import rgb_to_grayscale
+
+# Define a simple CNN architecture for image enhancement
+def enhance_property_images(input_shape=(None, None, 3)):
+    input_img = Input(shape=input_shape)
+
+    # Encoder
+    x = Conv2D(64, (3, 3), activation='relu', padding='same')(input_img)
+    x = Conv2D(64, (3, 3), activation='relu', padding='same')(x)
+    x = Flatten()(x)
+    encoded = Dense(64, activation='relu')(x)
+
+    # Decoder
+    x = Dense(tf.reduce_prod(input_shape), activation='relu')(encoded)
+    x = Reshape(input_shape)(x)
+    x = Conv2D(64, (3, 3), activation='relu', padding='same')(x)
+    x = UpSampling2D((2, 2))(x) # Upsampling by a factor of 2
+    decoded = Conv2D(3, (3, 3), activation='sigmoid', padding='same')(x)
+
+    # Autoencoder
+    autoencoder = Model(input_img, decoded)
+    autoencoder.compile(optimizer='adam', loss='mean_squared_error')
+
+    return autoencoder
+
+# Instantiate the model
+enhancement_model = enhance_property_images()
+
+# Function to adjust brightness and contrast
+def adjust_brightness_contrast(image, brightness_delta, contrast_factor):
+    # Adjust brightness
+    adjusted = tf.image.adjust_brightness(image, brightness_delta)
+
+    # Adjust contrast
+    adjusted = tf.image.adjust_contrast(adjusted, contrast_factor)
+
+    return adjusted
+
+# Function to convert RGB to grayscale
+def convert_to_grayscale(image):
+    grayscale = rgb_to_grayscale(image)
+    return grayscale
+
+# Example usage:
+# image = ... # Load your image tensor here
+# enhanced_image = enhancement_model(image)
+# bright_contrast_image = adjust_brightness_contrast(enhanced_image, 0.1, 2)
+# grayscale_image = convert_to_grayscale(bright_contrast_image)
+
+import tensorflow as tf
+from tensorflow.keras.layers import Input, Conv2D, MaxPooling2D, UpSampling2D
+from tensorflow.keras.models import Model
+
+# Define the encoder
+input_img = Input(shape=(256, 256, 3)) # Adjust the shape to match your dataset
+x = Conv2D(32, (3, 3), activation='relu', padding='same')(input_img)
+x = MaxPooling2D((2, 2), padding='same')(x)
+encoded = Conv2D(16, (3, 3), activation='relu', padding='same')(x)
+
+# Define the decoder
+x = Conv2D(16, (3, 3), activation='relu', padding='same')(encoded)
+x = UpSampling2D((2, 2))(x)
+decoded = Conv2D(3, (3, 3), activation='sigmoid', padding='same')(x)
+
+# Define the autoencoder
+autoencoder = Model(input_img, decoded)
+autoencoder.compile(optimizer='adam', loss='mean_squared_error')
+
+# Train the autoencoder
+# autoencoder.fit(noisy_images, clean_images, epochs=50, batch_size=128, validation_split=0.2)
+
+import tensorflow as tf
+from tensorflow.keras.layers import Input, Conv2D, MaxPooling2D, UpSampling2D
+from tensorflow.keras.models import Model
+import tensorflow_io as tfio
+
+# Define the encoder for the autoencoder
+input_img = Input(shape=(256, 256, 3)) # Adjust the shape to match your dataset
+x = Conv2D(32, (3, 3), activation='relu', padding='same')(input_img)
+x = MaxPooling2D((2, 2), padding='same')(x)
+encoded = Conv2D(16, (3, 3), activation='relu', padding='same')(x)
+
+# Define the decoder for the autoencoder
+x = Conv2D(16, (3, 3), activation='relu', padding='same')(encoded)
+x = UpSampling2D((2, 2))(x)
+decoded = Conv2D(3, (3, 3), activation='sigmoid', padding='same')(x)
+
+# Define the autoencoder
+autoencoder = Model(input_img, decoded)
+autoencoder.compile(optimizer='adam', loss='mean_squared_error')
+
+# Function to perform color correction
+def color_correction(image):
+    # Convert RGB to YCbCr color space
+    ycbcr = tfio.experimental.color.rgb_to_ycbcr(tf.cast(image, tf.float32) / 255.0)
+    # Perform color correction operations on the YCbCr image
+    # ...
+    return ycbcr
+
+# Function to apply style transfer
+def apply_style_transfer(content_image, style_image):
+    # Load pre-trained style transfer model and apply style transfer
+    # ...
+    return styled_image
+
+# Example usage:
+# Train the autoencoder with noisy and clean images
+# autoencoder.fit(noisy_images, clean_images, epochs=50, batch_size=128, validation_split=0.2)
+
+# Perform color correction on an image
+# corrected_image = color_correction(input_image)
+
+# Apply style transfer to an image
+# styled_image = apply_style_transfer(content_image, style_image)
+
+import tensorflow as tf
+from tensorflow.keras.layers import Input, Conv2D, MaxPooling2D, UpSampling2D
+from tensorflow.keras.models import Model
+
+# Define the encoder
+input_img = Input(shape=(256, 256, 3)) # Adjust the shape to match your dataset
+x = Conv2D(32, (3, 3), activation='relu', padding='same')(input_img)
+x = MaxPooling2D((2, 2), padding='same')(x)
+encoded = Conv2D(16, (3, 3), activation='relu', padding='same')(x)
+
+# Define the decoder
+x = Conv2D(16, (3, 3), activation='relu', padding='same')(encoded)
+x = UpSampling2D((2, 2))(x)
+decoded = Conv2D(3, (3, 3), activation='sigmoid', padding='same')(x)
+
+# Define the autoencoder
+autoencoder = Model(input_img, decoded)
+autoencoder.compile(optimizer='adam', loss='mean_squared_error')
+
+# Train the autoencoder
+# autoencoder.fit(noisy_images, clean_images, epochs=50, batch_size=128, validation_split=0.2)
+
+import tensorflow as tf
+from tensorflow.keras.layers import Input, Conv2D, MaxPooling2D, UpSampling2D, Conv2DTranspose
+from tensorflow.keras.models import Model
+import tensorflow_io as tfio
+import numpy as np
+
+# Define the autoencoder architecture
+def build_autoencoder(input_shape):
+    input_img = Input(shape=input_shape)
+    # Encoder
+    x = Conv2D(32, (3, 3), activation='relu', padding='same')(input_img)
+    x = MaxPooling2D((2, 2), padding='same')(x)
+    # Decoder
+    x = Conv2DTranspose(32, (3, 3), strides=2, activation='relu', padding='same')(x)
+    decoded = Conv2D(3, (3, 3), activation='sigmoid', padding='same')(x)
+    # Autoencoder
+    autoencoder = Model(input_img, decoded)
+    autoencoder.compile(optimizer='adam', loss='mean_squared_error')
+    return autoencoder
+
+# Function to add noise to images
+def add_noise(images, noise_factor=0.5):
+    noisy_images = images + noise_factor * np.random.normal(loc=0.0, scale=1.0, size=images.shape)
+    noisy_images = np.clip(noisy_images, 0., 1.)
+    return noisy_images
+
+# Function for color correction using TensorFlow I/O
+def color_correction(image):
+    # Convert RGB to YCbCr color space
+    ycbcr = tfio.experimental.color.rgb_to_ycbcr(tf.cast(image, tf.float32) / 255.0)
+    # Perform color correction operations on the YCbCr image
+    # ...
+    return ycbcr
+
+# Placeholder function for style transfer
+def style_transfer(content_image, style_image):
+    # Load pre-trained style transfer model and apply style transfer
+    # ...
+    return styled_image
+
+# Example usage:
+# Load your dataset of clean images
+clean_images = # ... load clean images
+# Create noisy images
+noisy_images = add_noise(clean_images)
+
+# Build and train the autoencoder
+autoencoder = build_autoencoder(clean_images[0].shape)
+autoencoder.fit(noisy_images, clean_images, epochs=50, batch_size=128, validation_split=0.2)
+
+# Apply color correction to an image
+corrected_image = color_correction(clean_images[0])
+
+# Apply style transfer to an image (assuming you have a style image)
+styled_image = style_transfer(clean_images[0], style_image) # style_image needs to be defined
+# Import necessary libraries
+from keras.models import load_model
+from PIL import Image
+import numpy as np
+import io
+
+# Load pre-trained models (paths to models need to be specified)
+super_resolution_model = load_model('path_to_super_resolution_model.h5')
+image_enhancement_model = load_model('path_to_image_enhancement_model.h5')
+autoencoder_model = load_model('path_to_autoencoder_model.h5')
+
+# Define a function to enhance property images
+def enhance_property_images(image_path):
+    # Load the image
+    original_image = Image.open(image_path)
+    
+    # Preprocess the image for super-resolution model
+    sr_preprocessed_image = preprocess_for_super_resolution(original_image)
+    
+    # Enhance image resolution
+    enhanced_resolution_image = super_resolution_model.predict(sr_preprocessed_image)
+    
+    # Preprocess the image for image enhancement model
+    ie_preprocessed_image = preprocess_for_image_enhancement(enhanced_resolution_image)
+    
+    # Enhance image quality
+    enhanced_quality_image = image_enhancement_model.predict(ie_preprocessed_image)
+    
+    # Preprocess the image for autoencoder model
+    ae_preprocessed_image = preprocess_for_autoencoder(enhanced_quality_image)
+    
+    # Denoise and reconstruct the image
+    final_enhanced_image = autoencoder_model.predict(ae_preprocessed_image)
+    
+    # Post-process the image to convert it back to a suitable format
+    final_image = postprocess_image(final_enhanced_image)
+    
+    # Save or return the enhanced image
+    final_image.save('enhanced_image.png')
+    return io.BytesIO(final_image.tobytes()), 'image/png'
+
+# Define helper functions for preprocessing and postprocessing
+def preprocess_for_super_resolution(image):
+    # Implement preprocessing steps for super-resolution model
+    pass
+
+def preprocess_for_image_enhancement(image):
+    # Implement preprocessing steps for image enhancement model
+    pass
+
+def preprocess_for_autoencoder(image):
+    # Implement preprocessing steps for autoencoder model
+    pass
+
+def postprocess_image(image):
+    # Implement postprocessing steps to convert the model output to image format
+    pass
+
+# Integrate the enhancement function into the application's image upload pipeline
+@app.route('/upload', methods=['POST'])
+def upload_image():
+    if 'file' not in request.files:
+        return 'No file part', 400
+    file = request.files['file']
+    if file.filename == '':
+        return 'No selected file', 400
+    if file and allowed_file(file.filename):
+        # Call the enhancement function
+        enhanced_image, image_format = enhance_property_images(file)
+        # Further code to handle the enhanced image (e.g., save to database, return to user)
+        pass
+
+# Define additional routes and functionalities as needed
+
+//Import necessary libraries
+import tensorflow as tf
+from tensorflow.keras.layers import Input, Conv2D, UpSampling2D, BatchNormalization
+from tensorflow.keras.models import Model
+from tensorflow.keras.optimizers import Adam
+import tensorflow_datasets as tfds
+import tensorflow_io as tfio
+# app.py (Flask example)
+
+from flask import Flask, request, jsonify
+import stripe
+
+app = Flask(__name__)
+
+# Initialize Stripe with your API key (replace with your actual secret key)
+stripe.api_key = "your_stripe_secret_key"
+
+# Example route for creating a payment intent
+@app.route("/create-payment-intent", methods=["POST"])
+def create_payment_intent():
+    try:
+        # Get the amount from the request (you can adjust this based on your needs)
+        amount = request.json.get("amount")
+
+        # Create a payment intent
+        intent = stripe.PaymentIntent.create(
+            amount=amount,
+            currency="usd",  # Replace with your preferred currency
+            payment_method_types=["card"],
+            description="Booking payment",
+            confirm=True,
+        )
+
+        # Return the client secret to the frontend
+        return jsonify({"clientSecret": intent.client_secret})
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# Example route for handling payment callbacks (webhooks)
+@app.route("/webhook", methods=["POST"])
+def handle_webhook():
+    payload = request.data
+    try:
+        # Verify the webhook event (using your endpoint secret)
+        event = stripe.Webhook.construct_event(
+            payload, sig_header=request.headers.get("Stripe-Signature"), secret="your_webhook_secret"
+        )
+
+        # Handle specific events (e.g., payment succeeded, refund issued)
+        if event.type == "payment_intent.succeeded":
+            # Update booking status (e.g., mark as paid)
+            # Handle other relevant actions
+
+        return jsonify({"status": "success"})
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+if __name__ == "__main__":
+    app.run(debug=True)
+# app.py (Flask example)
+
+from flask import Flask, request, jsonify
+import stripe
+
+app = Flask(__name__)
+
+# Initialize Stripe with your API key (replace with your actual secret key)
+stripe.api_key = "your_stripe_secret_key"
+
+# Example route for creating an escrow payment intent
+@app.route("/create-escrow-payment", methods=["POST"])
+def create_escrow_payment():
+    try:
+        # Get the amount and booking ID from the request
+        amount = request.json.get("amount")
+        booking_id = request.json.get("booking_id")
+
+        # Create a payment intent with escrow setup
+        intent = stripe.PaymentIntent.create(
+            amount=amount,
+            currency="usd",  # Replace with your preferred currency
+            payment_method_types=["card"],
+            description=f"Booking payment for Booking ID {booking_id}",
+            setup_future_usage="off_session",  # Set up for future payments
+            application_fee_amount=100,  # Example fee (adjust as needed)
+            transfer_data={
+                "destination": "host_stripe_account_id",  # Host's Stripe account ID
+            },
+        )
+
+        # Return the client secret to the frontend
+        return jsonify({"clientSecret": intent.client_secret})
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+if __name__ == "__main__":
+    app.run(debug=True)
+# app.py
+
+from flask import Flask, request, jsonify
+import sqlite3
+
+app = Flask(__name__)
+db_path = "booking_system.db"
+
+# Initialize database (create tables if not exists)
+def init_db():
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS users (
+            user_id INTEGER PRIMARY KEY,
+            name TEXT,
+            email TEXT UNIQUE
+        );
+    """)
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS rooms (
+            room_id INTEGER PRIMARY KEY,
+            room_type TEXT,
+            capacity INTEGER,
+            price REAL
+        );
+    """)
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS bookings (
+            booking_id INTEGER PRIMARY KEY,
+            user_id INTEGER,
+            room_id INTEGER,
+            check_in_date DATE,
+            check_out_date DATE,
+            payment_status TEXT,
+            FOREIGN KEY (user_id) REFERENCES users(user_id),
+            FOREIGN KEY (room_id) REFERENCES rooms(room_id)
+        );
+    """)
+    conn.commit()
+    conn.close()
+
+@app.route("/create-booking", methods=["POST"])
+def create_booking():
+    # Validate input and insert into bookings table
+    # Update room availability
+    # Return success message or error
+    # ...
+
+@app.route("/update-booking/<int:booking_id>", methods=["PUT"])
+def update_booking(booking_id):
+    # Validate input and update booking details
+    # Return success message or error
+    # ...
+
+@app.route("/get-bookings/<int:user_id>", methods=["GET"])
+def get_bookings(user_id):
+    # Fetch bookings for the given user
+    # Return booking details
+    # ...
+
+# Other routes for payment status update, etc.
+
+if __name__ == "__main__":
+    init_db()
+    app.run(debug=True)
+pip install Flask-Mail
+# config.py
+MAIL_SERVER = 'smtp.example.com'
+MAIL_PORT = 587
+MAIL_USE_TLS = True
+MAIL_USERNAME = 'your_email@example.com'
+MAIL_PASSWORD = 'your_email_password'
+MAIL_DEFAULT_SENDER = 'your_email@example.com'
+from flask import Flask
+from flask_mail import Mail
+
+app = Flask(__name__)
+app.config.from_object('config')  # Load email configuration
+mail = Mail(app)
+from flask_mail import Message
+
+def send_booking_confirmation_email(user_email, booking_details):
+    msg = Message('Booking Confirmation', recipients=[user_email])
+    msg.html = render_template('emails/booking_confirmation.html', booking=booking_details)
+    mail.send(msg)
+
+def send_payment_update_email(user_email, payment_status):
+    msg = Message('Payment Update', recipients=[user_email])
+    msg.html = render_template('emails/payment_update.html', status=payment_status)
+    mail.send(msg)
+@app.route('/booking-confirmed/<booking_id>')
+def booking_confirmed(booking_id):
+    # Fetch booking details
+    # Send confirmation email
+    send_booking_confirmation_email(user_email, booking_details)
+    # Other logic
+
+@app.route('/payment-updated/<payment_status>')
+def payment_updated(payment_status):
+    # Fetch user email
+    # Send payment update email
+    send_payment_update_email(user_email, payment_status)
+    # Other logic
+
+
