@@ -1,0 +1,1337 @@
+
+/* styles.css */
+
+body {
+
+    font-family: 'Arial', sans-serif;
+
+}
+
+
+header, footer {
+
+    background-color: #333;
+
+    color: white;
+
+    text-align: center;
+
+    padding: 1em 0;
+
+}
+
+
+main {
+
+    padding: 1em;
+
+}
+
+
+#search-properties {
+
+    margin-bottom: 2em;
+
+}
+
+
+#property-list {
+
+    /* Styles for property listings */
+
+}
+
+
+/* styles.css */
+
+/* Add your existing styles here */
+
+/* New styles for the booking form */
+
+form {
+
+    max-width: 300px;
+
+    margin: auto;
+
+}
+
+
+form label, form input {
+
+    display: block;
+
+    width: 100%;
+
+    margin-bottom: 10px;
+
+}
+
+
+form input {
+
+    padding: 5px;
+
+    border: 1px solid #ccc;
+
+    border-radius: 5px;
+
+}
+
+
+form button {
+
+    padding: 10px 15px;
+
+    background-color: #ff5a5f;
+
+    color: white;
+
+    border: none;
+
+    border-radius: 5px;
+
+    cursor: pointer;
+
+}
+
+
+form button:hover {
+
+    background-color: #f53d3d;
+
+}
+
+
+#booking-response {
+
+    margin-top: 20px;
+
+    padding: 10px;
+
+    border-radius: 5px;
+
+    background-color: #eaf4fc;
+
+    color: #333;
+
+}
+
+
+
+/* styles.css */
+/* Add your existing styles here */
+
+/* New styles for the search form */
+form {
+    max-width: 300px;
+    margin: auto;
+}
+
+form label, form input {
+    display: block;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+form input {
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+form button {
+    padding: 10px 15px;
+    background-color: #ff5a5f;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+form button:hover {
+    background-color: #f53d3d;
+}
+
+#property-list {
+    /* Styles for property listings */
+}
+// Assuming you have a User model with a referralCode and referredBy properties
+app.post('/refer', async (req, res) => {
+    const { referralCode } = req.body;
+    try {
+        // Find the user who was referred
+        const referredUser = await User.findOne({ referralCode: referralCode });
+        if (!referredUser) {
+            return res.status(404).send('Referral code not found.');
+        }
+        // Update the referrer's reward points
+        const referrer = await User.findById(referredUser.referredBy);
+        referrer.rewardPoints += 10; // Assuming each referral gives 10 points
+        await referrer.save();
+        res.send('Referral successful and rewards updated.');
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+});  
+
+
+<!-- booking.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Your Stay</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Book Your Perfect Vacation Rental</h1>
+    </header>
+    <main>
+        <form id="booking-form">
+            <label for="location">Location:</label>
+            <input type="text" id="location" name="location" required>
+
+            <label for="check-in-date">Check-In:</label>
+            <input type="date" id="check-in-date" name="check-in" required>
+
+            <label for="check-out-date">Check-Out:</label>
+            <input type="date" id="check-out-date" name="check-out" required>
+
+            <label for="guests">Guests:</label>
+            <input type="number" id="guests" name="guests" min="1" required>
+
+            <button type="submit">Book Now</button>
+        </form>
+        <div id="booking-response"></div>
+    </main>
+    <footer>
+        <p>© 2024 Airbnb Booking</p>
+    </footer>
+    <script src="booking.js"></script>
+</body>
+</html>
+/* styles.css */
+/* Add your existing styles here */
+
+/* New styles for the booking form */
+form {
+    max-width: 300px;
+    margin: auto;
+}
+
+form label, form input {
+    display: block;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+form input {
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+form button {
+    padding: 10px 15px;
+    background-color: #ff5a5f;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+form button:hover {
+    background-color: #f53d3d;
+}
+
+#booking-response {
+    margin-top: 20px;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: #eaf4fc;
+    color: #333;
+}
+// Assuming you have a User model with a referralCode and referredBy properties
+app.post('/refer', async (req, res) => {
+    const { referralCode } = req.body;
+    try {
+        // Find the user who was referred
+        const referredUser = await User.findOne({ referralCode: referralCode });
+        if (!referredUser) {
+            return res.status(404).send('Referral code not found.');
+        }
+        // Update the referrer's reward points
+        const referrer = await User.findById(referredUser.referredBy);
+        referrer.rewardPoints += 10; // Assuming each referral gives 10 points
+        await referrer.save();
+        res.send('Referral successful and rewards updated.');
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+});  
+
+/* styles.css */
+/* Add your existing styles here */
+
+/* New styles for the search form */
+form {
+    max-width: 300px;
+    margin: auto;
+}
+
+form label, form input {
+    display: block;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+form input {
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+form button {
+    padding: 10px 15px;
+    background-color: #ff5a5f;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+form button:hover {
+    background-color: #f53d3d;
+}
+
+#property-list {
+    /* Styles for property
+
+
+// styles.css
+body {
+    font-family: Arial, sans-serif;
+}
+/* Add more styles as needed */
+
+/* Common styles for the entire application */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+}
+
+/* Specific styles for app content */
+#app-content {
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+document.addEventListener('DOMContentLoaded', function() {
+    // Fetch user-specific data (e.g., notifications, bookings) and update UI
+    // Handle user interactions (e.g., form submissions, button clicks)
+});
+
+
+// styles.css
+body {
+    font-family: Arial, sans-serif;
+}
+/* Add more styles as needed */
+
+/* Common styles for the entire application */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+}
+
+/* Specific styles for app content */
+#app-content {
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+document.addEventListener('DOMContentLoaded', function() {
+    // Fetch user-specific data (e.g., notifications, bookings) and update UI
+    // Handle user interactions (e.g., form submissions, button clicks)
+});
+
+/* Common styles for the entire application */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+}
+
+/* Specific styles for app content */
+#app-content {
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+document.addEventListener('DOMContentLoaded', function() {
+    // Fetch user-specific data (e.g., notifications, bookings) and update UI
+    // Handle user interactions (e.g., form submissions, button clicks)
+});
+
+
+// styles.css
+body {
+    font-family: Arial, sans-serif;
+}
+/* Add more styles as needed */
+
+/* Common styles for the entire application */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+}
+
+/* Specific styles for app content */
+#app-content {
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+document.addEventListener('DOMContentLoaded', function() {
+    // Fetch user-specific data (e.g., notifications, bookings) and update UI
+    // Handle user interactions (e.g., form submissions, button clicks)
+});
+/* Common styles for the entire application */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+}
+
+/* Specific styles for app content */
+#app-content {
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+document.addEventListener('DOMContentLoaded', function() {
+    // Fetch user-specific data (e.g., notifications, bookings) and update UI
+    // Handle user interactions (e.g., form submissions, button clicks)
+});
+
+// styles.css
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+/* Add more styles for your application */
+
+// app.js
+document.addEventListener('DOMContentLoaded', function() {
+    // JavaScript logic to interact with the backend API
+});
+
+// styles.css
+body {
+    font-family: Arial, sans-serif;
+}
+/* Add more styles as needed */
+
+/* Common styles for the entire application */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+}
+
+/* Specific styles for app content */
+#app-content {
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}document.addEventListener('DOMContentLoaded', function() {
+    // Fetch user-specific data (e.g., notifications, bookings) and update UI
+    // Handle user interactions (e.g., form submissions, button clicks)
+});
+
+/* Common styles for the entire application */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+}
+
+/* Specific styles for app content */
+#app-content {
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+document.addEventListener('DOMContentLoaded', function() {
+    // Fetch user-specific data (e.g., notifications, bookings) and update UI
+    // Handle user interactions (e.g., form submissions, button clicks)
+});
+// styles.css
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+/* Add more styles for your application */
+
+
+
+// styles.css
+body {
+    font-family: Arial, sans-serif;
+}
+/* Add more styles as needed */
+
+/* Common styles for the entire application */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+}
+
+/* Specific styles for app content */
+#app-content {
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+document.addEventListener('DOMContentLoaded', function() {
+    // Fetch user-specific data (e.g., notifications, bookings) and update UI
+    // Handle user interactions (e.g., form submissions, button clicks)
+});
+/* Common styles for the entire application */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+}
+
+/* Specific styles for app content */
+#app-content {
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+document.addEventListener('DOMContentLoaded', function() {
+    // Fetch user-specific data (e.g., notifications, bookings) and update UI
+    // Handle user interactions (e.g., form submissions, button clicks)
+});
+
+/* Common styles for the entire application */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+}
+
+/* Specific styles for app content */
+#app-content {
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+document.addEventListener('DOMContentLoaded', function() {
+    // Fetch user-specific data (e.g., notifications, bookings) and update UI
+    // Handle user interactions (e.g., form submissions, button clicks)
+});
+
+// styles.css
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+/* Add more styles for your application */
+
+
+// styles.css
+body {
+    font-family: Arial, sans-serif;
+}
+/* Add more styles as needed */
+
+/* Common styles for the entire application */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+}
+
+/* Specific styles for app content */
+#app-content {
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+document.addEventListener('DOMContentLoaded', function() {
+    // Fetch user-specific data (e.g., notifications, bookings) and update UI
+    // Handle user interactions (e.g., form submissions, button clicks)
+});
+
+/* Common styles for the entire application */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+}
+
+/* Specific styles for app content */
+#app-content {
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+document.addEventListener('DOMContentLoaded', function() {
+    // Fetch user-specific data (e.g., notifications, bookings) and update UI
+    // Handle user interactions (e.g., form submissions, button clicks)
+});
+
+// styles.css
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+/* Add more styles for your application */
+
+
+// styles.css
+body {
+    font-family: Arial, sans-serif;
+}
+/* Add more styles as needed */
+
+/* Common styles for the entire application */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+}
+
+/* Specific styles for app content */
+#app-content {
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+document.addEventListener('DOMContentLoaded', function() {
+    // Fetch user-specific data (e.g., notifications, bookings) and update UI
+    // Handle user interactions (e.g., form submissions, button clicks)
+});
+
+/* Common styles for the entire application */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+}
+
+/* Specific styles for app content */
+#app-content {
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+document.addEventListener('DOMContentLoaded', function() {
+    // Fetch user-specific data (e.g., notifications, bookings) and update UI
+    // Handle user interactions (e.g., form submissions, button clicks)
+});
+
+// styles.css
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+/* Add more styles for your application */
+
+// styles.css
+body {
+    font-family: Arial, sans-serif;
+}
+/* Add more styles as needed */
+
+/* Common styles for the entire application */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+}
+
+/* Specific styles for app content */
+#app-content {
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+document.addEventListener('DOMContentLoaded', function() {
+    // Fetch user-specific data (e.g., notifications, bookings) and update UI
+    // Handle user interactions (e.g., form submissions, button clicks)
+});
+
+/* Common styles for the entire application */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+}
+
+/* Specific styles for app content */
+#app-content {
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+document.addEventListener('DOMContentLoaded', function() {
+    // Fetch user-specific data (e.g., notifications, bookings) and update UI
+    // Handle user interactions (e.g., form submissions, button clicks)
+});
+
+
+
+// styles.css
+body {
+    font-family: Arial, sans-serif;
+}
+/* Add more styles as needed */
+
+/* Common styles for the entire application */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+}
+
+/* Specific styles for app content */
+#app-content {
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+document.addEventListener('DOMContentLoaded', function() {
+    // Fetch user-specific data (e.g., notifications, bookings) and update UI
+    // Handle user interactions (e.g., form submissions, button clicks)
+});
+/* Common styles for the entire application */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+}
+
+/* Specific styles for app content */
+#app-content {
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+document.addEventListener('DOMContentLoaded', function() {
+    // Fetch user-specific data (e.g., notifications, bookings) and update UI
+    // Handle user interactions (e.g., form submissions, button clicks)
+});
+// styles.css
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+/* Add more styles for your application */
+
+
+// styles.css
+body {
+    font-family: Arial, sans-serif;
+}
+/* Add more styles as needed */
+
+</html>
+/* Common styles for the entire application */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+}
+
+/* Specific styles for app content */
+#app-content {
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+document.addEventListener('DOMContentLoaded', function() {
+    // Fetch user-specific data (e.g., notifications, bookings) and update UI
+    // Handle user interactions (e.g., form submissions, button clicks)
+});
+/* Common styles for the entire application */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+}
+
+/* Specific styles for app content */
+#app-content {
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+document.addEventListener('DOMContentLoaded', function() {
+    // Fetch user-specific data (e.g., notifications, bookings) and update UI
+    // Handle user interactions (e.g., form submissions, button clicks)
+});
+
+// styles.css
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+/* Add more styles for your application */
+
+
+// styles.css
+body {
+    font-family: Arial, sans-serif;
+}
+/* Add more styles as needed */
+
+/* Common styles for the entire application */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+}
+
+/* Specific styles for app content */
+#app-content {
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+document.addEventListener('DOMContentLoaded', function() {
+    // Fetch user-specific data (e.g., notifications, bookings) and update UI
+    // Handle user interactions (e.g., form submissions, button clicks)
+});
+
+/* Common styles for the entire application */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+}
+
+/* Specific styles for app content */
+#app-content {
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+document.addEventListener('DOMContentLoaded', function() {
+    // Fetch user-specific data (e.g., notifications, bookings) and update UI
+    // Handle user interactions (e.g., form submissions, button clicks)
+});
+
+// styles.css
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+/* Add more styles for your application */
+
+
+/* styles.css */
+body {
+    font-family: 'Arial', sans-serif;
+}
+
+header, footer {
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 1em 0;
+}
+
+main {
+    padding: 1em;
+}
+
+#search-properties {
+    margin-bottom: 2em;
+}
+
+#property-list {
+    /* Styles for property listings */
+}
+
+/* styles.css */
+/* Add your existing styles here */
+/* New styles for the booking form */
+form {
+    max-width: 300px;
+    margin: auto;
+}
+
+form label, form input {
+    display: block;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+form input {
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+form button {
+    padding: 10px 15px;
+    background-color: #ff5a5f;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+form button:hover {
+    background-color: #f53d3d;
+}
+
+#booking-response {
+    margin-top: 20px;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: #eaf4fc;
+    color: #333;
+}
+
+/* styles.css */
+body {
+    font-family: 'Arial', sans-serif;
+}
+
+header, footer {
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 1em 0;
+}
+
+main {
+    padding: 1em;
+}
+
+#search-properties {
+    margin-bottom: 2em;
+}
+
+#property-list {
+    /* Styles for property listings */
+}
+
+
+/* styles.css */
+/* Add your existing styles here */
+/* New styles for the booking form */
+form {
+    max-width: 300px;
+    margin: auto;
+}
+
+form label, form input {
+    display: block;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+form input {
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+form button {
+    padding: 10px 15px;
+    background-color: #ff5a5f;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+form button:hover {
+    background-color: #f53d3d;
+}
+
+#booking-response {
+    margin-top: 20px;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: #eaf4fc;
+    color: #333;
+}
+
+./* styles.css */
+/* Add your existing styles here */
+
+/* New styles for the search form */
+form {
+    max-width: 300px;
+    margin: auto;
+}
+
+form label, form input {
+    display: block;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+form input {
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+form button {
+    padding: 10px 15px;
+    background-color: #ff5a5f;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+form button:hover {
+    background-color: #f53d3d;
+}
+
+#property-list {
+    /* Styles for property listings */
+}
+
+/* styles.css */
+/* Add your existing styles here */
+
+/* New styles for the booking form */
+form {
+    max-width: 300px;
+    margin: auto;
+}
+
+form label, form input {
+    display: block;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+form input {
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+form button {
+    padding: 10px 15px;
+    background-color: #ff5a5f;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+form button:hover {
+    background-color: #f53d3d;
+}
+
+#booking-response {
+    margin-top: 20px;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: #eaf4fc;
+    color: #333;
+}
+
+/* styles.css */
+/* Add your existing styles here */
+
+/* New styles for the search form */
+form {
+    max-width: 300px;
+    margin: auto;
+}
+
+form label, form input {
+    display: block;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+form input {
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+form button {
+    padding: 10px 15px;
+    background-color: #ff5a5f;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+form button:hover {
+    background-color: #f53d3d;
+}
+
+#property-list {
+    /* Styles for property
+
+// styles.css
+body {
+    font-family: Arial, sans-serif;
+}
+/* Add more styles as needed */
+
+/* Common styles for the entire application */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+}
+
+/* Specific styles for app content */
+#app-content {
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Common styles for the entire application */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+}
+
+/* Specific styles for app content */
+#app-content {
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+// styles.css
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+/* Add more styles for your application */
+// styles.css
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+/* Add more styles for your application */
+
+// styles.css
+body {
+    font-family: Arial, sans-serif;
+}
+/* Add more styles as needed */
+
+/* Common styles for the entire application */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+}
+
+/* Specific styles for app content */
+#app-content {
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Common styles for the entire application */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+}
+
+/* Specific styles for app content */
+#app-content {
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+
+// styles.css
+body {
+    font-family: Arial, sans-serif;
+}
+/* Add more styles as needed */
+* Common styles for the entire application */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+}
+
+/* Specific styles for app content */
+#app-content {
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+/* Common styles for the entire application */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+}
+
+/* Specific styles for app content */
+#app-content {
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+/ styles.css
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+/* Add more styles for your application */
+
+
+/* Playfair Display for Headings */
+h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 32px;
+}
+
+/* Merriweather for Body Text */
+body {
+  font-family: 'Merriweather', serif;
+  font-size: 16px;
+}
+
+/* Lora for Captions */
+figcaption {
+  font-family: 'Lora', serif;
+  font-size: 14px;
+}
+/* Base styles */
+body {
+  font-family: 'Merriweather', serif;
+}
+
+/* Mobile styles */
+@media only screen and (max-width: 390px) {
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px; /* Slightly smaller for mobile */
+  }
+
+  figcaption {
+    font-family: 'Lora', serif;
+    font-size: 12px; /* Adjusted for mobile readability */
+  }
+}
+
+/* Tablet styles */
+@media only screen and (min-width: 800px) {
+  h1 {
+    font-size: 32px; /* Default size for tablet and up */
+  }
+
+  figcaption {
+    font-size: 14px; /* Default size for tablet and up */
+  }
+}
+
+/* Desktop styles */
+@media only screen and (min-width: 1920px) {
+  h1 {
+    font-size: 36px; /* Larger size for desktop */
+  }
+}
+/* styles.css */
+#signup-container {
+  width: 300px;
+  margin: auto;
+  padding: 20px;
+  text-align: center;
+}
+input[type="tel"], input[type="text"] {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+}
+button {
+  padding: 10px 20px;
+  cursor: pointer;
+}
+#signup-container {
+  width: 300px;
+  margin: auto;
+  padding: 20px;
+  text-align: center;
+}
+input[type="tel"], input[type="text"] {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+}
+button {
+  padding: 10px 20px;
+  cursor: pointer;
+}
+
+#signup-container {
+  width: 300px;
+  margin: auto;
+  padding: 20px;
+  text-align: center;
+}
+input[type="tel"], input[type="text"] {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+}
+button {
+  padding: 10px 20px;
+  cursor: pointer;
+}
+
+/* styles.css */
+#signup-container {
+  width: 300px;
+  margin: auto;
+  padding: 20px;
+  text-align: center;
+}
+input[type="tel"], input[type="text"] {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+}
+button {
+  padding: 10px 20px;
+  cursor: pointer;
+}
+
+* CSS for styling the sign-up/sign-in frame */
+#auth-container {
+  /* Container styles */
+}
+
+#google-signin-btn, #facebook-signin-btn {
+  /* Button styles */
+  /* Add specific styles for Google and Facebook buttons */
+}
+
+
