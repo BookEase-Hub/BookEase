@@ -1,0 +1,793 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Airbnb Shortlet Booking</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Welcome to Airbnb Shortlet Booking</h1>
+    </header>
+    <main>
+        <section id="search-properties">
+            <h2>Search Properties</h2>
+            <form id="search-form">
+                <input type="text" id="location" name="location" placeholder="Enter location">
+                <input type="date" id="date" name="date">
+                <button type="submit">Search</button>
+            </form>
+        </section>
+        <section id="property-list">
+            <!-- Properties will be listed here -->
+        </section>
+    </main>
+    <footer>
+        <p>© 2024 Airbnb Shortlet Booking</p>
+    </footer>
+    <script src="app.js"></script>
+</body>
+</html>
+
+
+<!-- booking.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Your Stay</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Book Your Perfect Vacation Rental</h1>
+    </header>
+    <main>
+        <form id="booking-form">
+            <label for="location">Location:</label>
+            <input type="text" id="location" name="location" required>
+
+            <label for="check-in-date">Check-In:</label>
+            <input type="date" id="check-in-date" name="check-in" required>
+
+            <label for="check-out-date">Check-Out:</label>
+            <input type="date" id="check-out-date" name="check-out" required>
+
+            <label for="guests">Guests:</label>
+            <input type="number" id="guests" name="guests" min="1" required>
+
+            <button type="submit">Book Now</button>
+        </form>
+        <div id="booking-response"></div>
+    </main>
+    <footer>
+        <p>© 2024 Airbnb Booking</p>
+    </footer>
+    <script src="booking.js"></script>
+</body>
+</html>
+
+
+<!-- property-form.html (Frontend form for uploading images) -->
+<form id="image-upload-form" enctype="multipart/form-data">
+    <input type="file" name="file" accept="image/*" required>
+    <input type="hidden" name="propertyId" value="PROPERTY_ID">
+    <button type="submit">Upload Image</button>
+</form>
+
+<!-- notifications.html -->
+<div id="notifications">
+    <!-- Notifications will be listed here -->
+</div>
+
+<!-- chat.html -->
+<div id="chat-page">
+    <input type="text" id="messageInput" placeholder="Type a message...">
+    <button onclick="sendMessage()">Send</button>
+</div>
+
+<!-- terms-and-conditions.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terms and Conditions</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Terms and Conditions</h1>
+    </header>
+    <main>
+        <section id="terms">
+            <article>
+                <!-- Your terms and conditions text goes here -->
+                <h2>Caption for Terms and Conditions</h2>
+                <p>The content of your terms and conditions...</p>
+                <!-- Add more sections as needed -->
+            </article>
+        </section>
+    </main>
+    <footer>
+        <p>© 2024 Your Company Name</p>
+    </footer>
+</body>
+</html>
+<!-- signup.html -->
+<form id="signup-form">
+    <!-- Other sign-up fields -->
+    <label for="terms-checkbox">
+        <input type="checkbox" id="terms-checkbox" name="terms" required>
+        I agree to the <a href="terms-and-conditions.html" target="_blank">Terms and Conditions</a>
+    </label>
+    <button type="submit">Sign Up</button>
+</form>
+
+<p>By signing up, you agree to our <a href="terms-and-conditions.html" target="_blank">Terms and Conditions</a>.</p>
+<footer>
+    <nav>
+        <ul>
+            <li><a href="terms-and-conditions.html">Terms and Conditions</a></li>
+            <!-- Other footer links -->
+        </ul>
+    </nav>
+</footer>
+<div id="settings-menu">
+    <ul>
+        <li><a href="terms-and-conditions.html">Terms and Conditions</a></li>
+        <!-- Other settings options -->
+    </ul>
+</div>
+
+
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Airbnb Shortlet Booking</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Welcome to Airbnb Shortlet Booking</h1>
+    </header>
+    <main>
+        <section id="search-properties">
+            <h2>Search Properties</h2>
+            <form id="search-form">
+                <input type="text" id="location" name="location" placeholder="Enter location">
+                <input type="date" id="date" name="date">
+                <button type="submit">Search</button>
+            </form>
+        </section>
+        <section id="property-list">
+            <!-- Properties will be listed here -->
+        </section>
+    </main>
+    <footer>
+        <p>© 2024 Airbnb Shortlet Booking</p>
+    </footer>
+    <script src="app.js"></script>
+</body>
+</html>
+
+
+<!-- booking.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Your Stay</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Book Your Perfect Vacation Rental</h1>
+    </header>
+    <main>
+        <form id="booking-form">
+            <label for="location">Location:</label>
+            <input type="text" id="location" name="location" required>
+
+            <label for="check-in-date">Check-In:</label>
+            <input type="date" id="check-in-date" name="check-in" required>
+
+            <label for="check-out-date">Check-Out:</label>
+            <input type="date" id="check-out-date" name="check-out" required>
+
+            <label for="guests">Guests:</label>
+            <input type="number" id="guests" name="guests" min="1" required>
+
+            <button type="submit">Book Now</button>
+        </form>
+        <div id="booking-response"></div>
+    </main>
+    <footer>
+        <p>© 2024 Airbnb Booking</p>
+    </footer>
+    <script src="booking.js"></script>
+</body>
+</html>
+<!-- property-form.html -->
+<form id="image-upload-form" enctype="multipart/form-data">
+    <input type="file" name="file" accept="image/*" required>
+    <input type="hidden" name="propertyId" value="PROPERTY_ID">
+    <button type="submit">Upload Image</button>
+</form>
+
+<!-- property-form.html -->
+<form id="image-upload-form" enctype="multipart/form-data">
+    <input type="file" name="file" accept="image/*" required>
+    <input type="hidden" name="propertyId" value="PROPERTY_ID">
+    <button type="submit">Upload Image</button>
+</form>
+
+<!-- terms-and-conditions.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- ... -->
+</head>
+<body>
+    <!-- Terms and conditions content -->
+</body>
+</html>
+
+<!-- signup.html -->
+<form id="signup-form">
+    <!-- Sign-up fields and terms agreement checkbox -->
+</form>
+
+// Terms and Conditions Page (terms-and-conditions.html)
+<!-- Your terms and conditions content goes here -->
+
+// Sign-Up Page (signup.html)
+<form id="signup-form">
+    <!-- Other sign-up fields -->
+    <label for="terms-checkbox">
+        <input type="checkbox" id="terms-checkbox" name="terms" required>
+        I agree to the <a href="terms-and-conditions.html" target="_blank">Terms and Conditions</a>
+    </label>
+    <button type="submit">Sign Up</button>
+</form>
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Airbnb Shortlet Booking</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Welcome to Airbnb Shortlet Booking</h1>
+    </header>
+    <main>
+        <section id="search-properties">
+            <h2>Search Properties</h2>
+            <form id="search-form">
+                <input type="text" id="location" name="location" placeholder="Enter location">
+                <input type="date" id="date" name="date">
+                <button type="submit">Search</button>
+            </form>
+        </section>
+        <section id="property-list">
+            <!-- Properties will be listed here -->
+        </section>
+    </main>
+    <footer>
+        <p>© 2024 Airbnb Shortlet Booking</p>
+    </footer>
+    <script src="app.js"></script>
+</body>
+</html>
+
+
+<!-- Add your existing HTML structure here -->
+<!-- Include the booking form -->
+<form id="image-upload-form" enctype="multipart/form-data">
+    <input type="file" name="file" accept="image/*" required>
+    <input type="hidden" name="propertyId" value="PROPERTY_ID">
+    <button type="submit">Upload Image</button>
+</form>
+<form id="image-upload-form" enctype="multipart/form-data">
+    <input type="file" name="file" accept="image/*" required>
+    <input type="hidden" name="propertyId" value="PROPERTY_ID">
+    <button type="submit">Upload Image</button>
+</form>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Head elements -->
+</head>
+<body>
+    <!-- Terms and conditions content -->
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Head elements -->
+</head>
+<body>
+    <form id="signup-form">
+        <!-- Other sign-up fields -->
+        <label for="terms-checkbox">
+            <input type="checkbox" id="terms-checkbox" name="terms" required>
+            I agree to the <a href="terms-and-conditions.html" target="_blank">Terms and Conditions</a>
+        </label>
+        <button type="submit">Sign Up</button>
+    </form>
+    <script src="signup.js"></script>
+</body>
+</html>
+
+// index.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Application</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Content here -->
+</body>
+</html>
+
+// terms-and-conditions.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Terms and Conditions</title>
+</head>
+<body>
+    <h1>Terms and Conditions</h1>
+    <!-- Terms and conditions content -->
+</body>
+</html>
+
+// signup.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sign Up</title>
+</head>
+<body>
+    <form id="signup-form">
+        <!-- Sign-up form fields -->
+        <button type="submit">Sign Up</button>
+    </form>
+    <script src="signup.js"></script>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Application</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Header, navigation, and other common elements -->
+    <h1>Welcome to My Application</h1>
+    <div id="app-content">
+        <!-- Display user-specific content here -->
+    </div>
+    <!-- Footer and other common elements -->
+    <script src="app.js"></script>
+</body>
+</html>
+
+
+// index.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Application</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Content here -->
+</body>
+</html>
+
+// terms-and-conditions.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Terms and Conditions</title>
+</head>
+<body>
+    <h1>Terms and Conditions</h1>
+    <!-- Terms and conditions content -->
+</body>
+</html>
+
+// signup.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sign Up</title>
+</head>
+<body>
+    <form id="signup-form">
+        <!-- Sign-up form fields -->
+        <button type="submit">Sign Up</button>
+    </form>
+    <script src="signup.js"></script>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Application</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Header, navigation, and other common elements -->
+    <h1>Welcome to My Application</h1>
+    <div id="app-content">
+        <!-- Display user-specific content here -->
+    </div>
+    <!-- Footer and other common elements -->
+    <script src="app.js"></script>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Application</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Header, navigation, and other common elements -->
+    <h1>Welcome to My Application</h1>
+    <div id="app-content">
+        <!-- Display user-specific content here -->
+    </div>
+    <!-- Footer and other common elements -->
+    <script src="app.js"></script>
+</body>
+</html>
+
+
+// index.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Application</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Content here -->
+</body>
+</html>
+
+
+// terms-and-conditions.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Terms and Conditions</title>
+</head>
+<body>
+    <h1>Terms and Conditions</h1>
+    <!-- Terms and conditions content -->
+</body>
+</html>
+
+// signup.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sign Up</title>
+</head>
+<body>
+    <form id="signup-form">
+        <!-- Sign-up form fields -->
+        <button type="submit">Sign Up</button>
+    </form>
+    <script src="signup.js"></script>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Application</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Header, navigation, and other common elements -->
+    <h1>Welcome to My Application</h1>
+    <div id="app-content">
+        <!-- Display user-specific content here -->
+    </div>
+    <!-- Footer and other common elements -->
+    <script src="app.js"></script>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Application</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Header, navigation, and other common elements -->
+    <h1>Welcome to My Application</h1>
+    <div id="app-content">
+        <!-- Display user-specific content here -->
+    </div>
+    <!-- Footer and other common elements -->
+    <script src="app.js"></script>
+</body>
+</html>
+
+// index.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Vacation Rentals</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Content will be loaded here -->
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
+
+
+// index.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Application</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Content here -->
+</body>
+</html>
+
+// terms-and-conditions.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Terms and Conditions</title>
+</head>
+<body>
+    <h1>Terms and Conditions</h1>
+    <!-- Terms and conditions content -->
+</body>
+</html>
+
+// signup.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sign Up</title>
+</head>
+<body>
+    <form id="signup-form">
+        <!-- Sign-up form fields -->
+        <button type="submit">Sign Up</button>
+    </form>
+    <script src="signup.js"></script>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Application</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Header, navigation, and other common elements -->
+    <h1>Welcome to My Application</h1>
+    <div id="app-content">
+        <!-- Display user-specific content here -->
+    </div>
+    <!-- Footer and other common elements -->
+    <script src="app.js"></script>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Application</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Header, navigation, and other common elements -->
+    <h1>Welcome to My Application</h1>
+    <div id="app-content">
+        <!-- Display user-specific content here -->
+    </div>
+    <!-- Footer and other common elements -->
+    <script src="app.js"></script>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Vacation Rentals</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Content will be loaded here -->
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
+
+
+// signup.html with form validation and terms and conditions link
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sign Up</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <form id="signup-form">
+        <!-- Form fields with required attribute for validation -->
+        <input type="text" id="username" name="username" required placeholder="Username">
+        <input type="email" id="email" name="email" required placeholder="Email">
+        <input type="password" id="password" name="password" required placeholder="Password">
+        <label for="terms-checkbox">
+            <input type="checkbox" id="terms-checkbox" name="terms" required>
+            I agree to the <a href="terms-and-conditions.html" target="_blank">Terms and Conditions</a>
+        </label>
+        <button type="submit">Sign Up</button>
+    </form>
+    <script src="signup.js"></script>
+</body>
+</html>
+
+// index.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Application</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Content here -->
+</body>
+</html>
+
+
+// terms-and-conditions.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Terms and Conditions</title>
+</head>
+<body>
+    <h1>Terms and Conditions</h1>
+    <!-- Terms and conditions content -->
+</body>
+</html>
+
+// signup.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sign Up</title>
+</head>
+<body>
+    <form id="signup-form">
+        <!-- Sign-up form fields -->
+        <button type="submit">Sign Up</button>
+    </form>
+    <script src="signup.js"></script>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Application</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Header, navigation, and other common elements -->
+    <h1>Welcome to My Application</h1>
+    <div id="app-content">
+        <!-- Display user-specific content here -->
+    </div>
+    <!-- Footer and other common elements -->
+    <script src="app.js"></script>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Application</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Header, navigation, and other common elements -->
+    <h1>Welcome to My Application</h1>
+    <div id="app-content">
+        <!-- Display user-specific content here -->
+    </div>
+    <!-- Footer and other common elements -->
+    <script src="app.js"></script>
+</body>
+</html>
+
+// index.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Vacation Rentals</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Content will be loaded here -->
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
+
+// signup.html with form validation and terms and conditions link
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sign Up</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <form id="signup-form">
+        <!-- Form fields 
