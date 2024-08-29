@@ -512,5 +512,31 @@ def payment_updated(payment_status):
     # Send payment update email
     send_payment_update_email(user_email, payment_status)
     # Other logic
+from flask import Flask, request, jsonify
+import pandas as pd
+from sklearn.neighbors import NearestNeighbors
+
+app = Flask(__name__)
+
+# Sample property data
+properties = pd.DataFrame([
+    {'id': 1, 'title': 'Property 1', 'description': 'Beautiful 3-bedroom house', 'features': [1, 0, 1, 0]},
+    {'id': 2, 'title': 'Property 2', 'description': 'Modern apartment in the city center', 'features': [0, 1, 0, 1]},
+    {'id': 3, 'title': 'Property 3', 'description': 'Cozy cottage', 'features': [1, 1, 0, 0]},
+    {'id': 4, 'title': 'Property 4', 'description': 'Luxury villa', 'features': [0, 0, 1, 1]}
+])
+
+# Train a simple recommendation model
+model = NearestNeighbors(n_neighbors=2, algorithm='auto').fit(list(properties['features']))
+
+@app.route('/api/recommend', methods=['POST'])
+def recommend():
+    user_preferences = request.json['preferences']
+    distances, indices = model.kneighbors([user_preferences])
+    recommended_properties = properties.iloc[indices[0]].to_dict(orient='records')
+    return jsonify(recommended_properties)
+
+if __name__ == '__main__':
+    app.run(debug=True)
 
 
