@@ -5510,7 +5510,112 @@ document.getElementById('facebook-signin-btn').addEventListener('click', functio
 
 
 // ... other scripts for sign-up/sign-in functionality ...
+const express = require('express');
+const app = express();
+const port = 3000;
 
+const properties = [
+    { id: 1, lat: -1.292066, lng: 36.821946, title: "Property 1", description: "Beautiful 3-bedroom house" },
+    { id: 2, lat: -1.28333, lng: 36.81667, title: "Property 2", description: "Modern apartment in the city center" }
+];
+
+app.get('/api/properties', (req, res) => {
+    res.json(properties);
+});
+
+app.listen(port, () => {
+    console.log(`Server running at http://localhost:${port}`);
+});
+require('dotenv').config();
+const express = require('express');
+const app = express();
+const port = 3000;
+
+const properties = [
+    { id: 1, lat: -1.292066, lng: 36.821946, title: "Property 1", description: "Beautiful 3-bedroom house" },
+    { id: 2, lat: -1.28333, lng: 36.81667, title: "Property 2", description: "Modern apartment in the city center" }
+];
+
+app.get('/api/properties', (req, res) => {
+    res.json(properties);
+});
+
+app.listen(port, () => {
+    console.log(`Server running at http://localhost:${port}`);
+});
+const express = require('express');
+const app = express();
+const port = 3000;
+
+const properties = [
+    { id: 1, lat: -1.292066, lng: 36.821946, title: "Property 1", description: "Beautiful 3-bedroom house" },
+    { id: 2, lat: -1.28333, lng: 36.81667, title: "Property 2", description: "Modern apartment in the city center" }
+];
+
+app.get('/api/properties', (req, res) => {
+    res.json(properties);
+});
+
+app.listen(port, () => {
+    console.log(`Server running at http://localhost:${port}`);
+});
+require('dotenv').config();
+const express = require('express');
+const app = express();
+const port = 3000;
+
+const properties = [
+    { id: 1, lat: -1.292066, lng: 36.821946, title: "Property 1", description: "Beautiful 3-bedroom house" },
+    { id: 2, lat: -1.28333, lng: 36.81667, title: "Property 2", description: "Modern apartment in the city center" }
+];
+
+app.get('/api/properties', (req, res) => {
+    res.json(properties);
+});
+
+app.listen(port, () => {
+    console.log(`Server running at http://localhost:${port}`);
+});
+const express = require('express');
+const app = express();
+const port = 3000;
+
+const properties = [
+    {
+        id: 1,
+        lat: -1.292066,
+        lng: 36.821946,
+        title: "Property 1",
+        description: "Beautiful 3-bedroom house",
+        image: "https://example.com/property1.jpg",
+        availability: "Available",
+        reviews: [
+            { rating: 5, comment: "Amazing place!" },
+            { rating: 4, comment: "Very comfortable." }
+        ]
+    },
+    {
+        id: 2,
+        lat: -1.28333,
+        lng: 36.81667,
+        title: "Property 2",
+        description: "Modern apartment in the city center",
+        image: "https://example.com/property2.jpg",
+        availability: "Booked",
+        reviews: [
+            { rating: 4, comment: "Great location." },
+            { rating: 3, comment: "Good value for money." }
+        ]
+    }
+];
+
+app.get('/api/properties', (req, res) => {
+    res.json(properties);
+});
+
+app.listen(port, () => {
+    console.log(`Server running at http://localhost:${port}`);
+});
 
 
 
