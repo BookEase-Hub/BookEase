@@ -1533,3 +1533,97 @@
     </script>
 </body>
 </html>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI-Driven Property Recommendations</title>
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap" async defer></script>
+    <style>
+        #map {
+            height: 100%;
+        }
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        #controls {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 5;
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        }
+        #recommendations {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 5;
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div id="controls">
+        <input id="preference1" type="checkbox"> Feature 1
+        <input id="preference2" type="checkbox"> Feature 2
+        <input id="preference3" type="checkbox"> Feature 3
+        <input id="preference4" type="checkbox"> Feature 4
+        <button onclick="getRecommendations()">Get Recommendations</button>
+    </div>
+    <div id="map"></div>
+    <div id="recommendations"></div>
+    <script>
+        let map;
+
+        function initMap() {
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: { lat: -1.286389, lng: 36.817223 },
+                zoom: 12
+            });
+        }
+
+        async function getRecommendations() {
+            const preferences = [
+                document.getElementById('preference1').checked ? 1 : 0,
+                document.getElementById('preference2').checked ? 1 : 0,
+                document.getElementById('preference3').checked ? 1 : 0,
+                document.getElementById('preference4').checked ? 1 : 0
+            ];
+
+            try {
+                const response = await fetch('/api/recommend', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ preferences })
+                });
+                const recommendedProperties = await response.json();
+                displayRecommendations(recommendedProperties);
+            } catch (error) {
+                console.error('Error fetching recommendations:', error);
+                alert('Failed to load recommendations. Please try again later.');
+            }
+        }
+
+        function displayRecommendations(properties) {
+            const recommendationsDiv = document.getElementById('recommendations');
+            recommendationsDiv.innerHTML = properties.map(property => `
+                <div>
+                    <h3>${property.title}</h3>
+                    <p>${property.description}</p>
+                </div>
+            `).join('');
+        }
+    </script>
+</body>
+</html>
