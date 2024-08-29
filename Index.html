@@ -791,3 +791,745 @@
 <body>
     <form id="signup-form">
         <!-- Form fields 
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Property Locations</title>
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap" async defer></script>
+    <style>
+        #map {
+            height: 100%;
+        }
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <script>
+        let map;
+
+        function initMap() {
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: { lat: -1.286389, lng: 36.817223 },
+                zoom: 12
+            });
+
+            // Example property locations
+            const properties = [
+                { lat: -1.292066, lng: 36.821946, title: "Property 1" },
+                { lat: -1.28333, lng: 36.81667, title: "Property 2" }
+            ];
+
+            properties.forEach(property => {
+                new google.maps.Marker({
+                    position: { lat: property.lat, lng: property.lng },
+                    map,
+                    title: property.title
+                });
+            });
+        }
+    </script>
+</body>
+</html>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Location Search</title>
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places&callback=initMap" async defer></script>
+    <style>
+        #map {
+            height: 100%;
+        }
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        #pac-input {
+            margin-top: 10px;
+            width: 300px;
+        }
+    </style>
+</head>
+<body>
+    <input id="pac-input" class="controls" type="text" placeholder="Search Box">
+    <div id="map"></div>
+    <script>
+        let map;
+        let markers = [];
+
+        function initMap() {
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: { lat: -1.286389, lng: 36.817223 },
+                zoom: 12
+            });
+
+            const input = document.getElementById('pac-input');
+            const searchBox = new google.maps.places.SearchBox(input);
+
+            map.addListener('bounds_changed', () => {
+                searchBox.setBounds(map.getBounds());
+            });
+
+            searchBox.addListener('places_changed', () => {
+                const places = searchBox.getPlaces();
+
+                if (places.length === 0) {
+                    return;
+                }
+
+                markers.forEach(marker => marker.setMap(null));
+                markers = [];
+
+                const bounds = new google.maps.LatLngBounds();
+                places.forEach(place => {
+                    if (!place.geometry) {
+                        console.log("Returned place contains no geometry");
+                        return;
+                    }
+
+                    const marker = new google.maps.Marker({
+                        map,
+                        title: place.name,
+                        position: place.geometry.location
+                    });
+                    markers.push(marker);
+
+                    if (place.geometry.viewport) {
+                        bounds.union(place.geometry.viewport);
+                    } else {
+                        bounds.extend(place.geometry.location);
+                    }
+                });
+                map.fitBounds(bounds);
+            });
+        }
+    </script>
+</body>
+</html>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Property Details</title>
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap" async defer></script>
+    <style>
+        #map {
+            height: 100%;
+        }
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <script>
+        let map;
+
+        function initMap() {
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: { lat: -1.286389, lng: 36.817223 },
+                zoom: 12
+            });
+
+            const properties = [
+                { lat: -1.292066, lng: 36.821946, title: "Property 1", description: "Beautiful 3-bedroom house" },
+                { lat: -1.28333, lng: 36.81667, title: "Property 2", description: "Modern apartment in the city center" }
+            ];
+
+            properties.forEach(property => {
+                const marker = new google.maps.Marker({
+                    position: { lat: property.lat, lng: property.lng },
+                    map,
+                    title: property.title
+                });
+
+                const infoWindow = new google.maps.InfoWindow({
+                    content: `<h3>${property.title}</h3><p>${property.description}</p>`
+                });
+
+                marker.addListener('click', () => {
+                    infoWindow.open(map, marker);
+                });
+            });
+        }
+    </script>
+</body>
+</html>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Directions</title>
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places&callback=initMap" async defer></script>
+    <style>
+        #map {
+            height: 100%;
+        }
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        #directions-panel {
+            height: 100%;
+            float: right;
+            width: 30%;
+            overflow: auto;
+        }
+        #map {
+            height: 100%;
+            float: left;
+            width: 70%;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <div id="directions-panel"></div>
+    <script>
+        let map;
+        let directionsService;
+        let directionsRenderer;
+
+        function initMap() {
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: { lat: -1.286389, lng: 36.817223 },
+                zoom: 12
+            });
+
+            directionsService = new google.maps.DirectionsService();
+            directionsRenderer = new google.maps.DirectionsRenderer();
+            directionsRenderer.setMap(map);
+            directionsRenderer.setPanel(document.getElementById('directions-panel'));
+
+            const control = document.createElement('div');
+            control.style.margin = '10px';
+            control.innerHTML = '<input id="start" type="text" placeholder="Start location"><input id="end" type="text" placeholder="End location"><button onclick="calculateRoute()">Get Directions</button>';
+            map.controls[google.maps.ControlPosition.TOP_CENTER].push(control);
+        }
+
+        function calculateRoute() {
+            const start = document.getElementById('start').value;
+            const end = document.getElementById('end').value;
+
+            directionsService.route({
+                origin: start,
+                destination: end,
+                travelMode: 'DRIVING'
+            }, (response, status) => {
+                if (status === 'OK') {
+                    directionsRenderer.setDirections(response);
+                } else {
+                    window.alert('Directions request failed due to ' + status);
+                }
+            });
+        }
+    </script>
+</body>
+</html>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Geolocation</title>
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap" async defer></script>
+    <style>
+        #map {
+            height: 100%;
+        }
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <script>
+        let map;
+
+        function initMap() {
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: { lat: -1.286389, lng: 36.817223 },
+                zoom: 12
+            });
+
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(position => {
+                    const pos = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    };
+
+                    map.setCenter(pos);
+
+                    new google.maps.Marker({
+                        position: pos,
+                        map,
+                        title: "You are here"
+                    });
+                }, () => {
+                    handleLocationError(true, map.getCenter());
+                });
+            } else {
+                handleLocationError(false, map.getCenter());
+            }
+        }
+
+        function handleLocationError(browserHasGeolocation, pos) {
+            const infoWindow = new google.maps.InfoWindow({
+                position: pos,        content: browserHasGeolocation ?
+            'Error: The Geolocation service failed.' :
+            'Error: Your browser doesn\'t support geolocation.'
+    });
+    infoWindow.open(map);
+}
+</script>
+</body>
+</html>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Property Locations with Backend</title>
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap" async defer></script>
+    <style>
+        #map {
+            height: 100%;
+        }
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <script>
+        let map;
+
+        async function initMap() {
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: { lat: -1.286389, lng: 36.817223 },
+                zoom: 12
+            });
+
+            const response = await fetch('/api/properties');
+            const properties = await response.json();
+
+            properties.forEach(property => {
+                const marker = new google.maps.Marker({
+                    position: { lat: property.lat, lng: property.lng },
+                    map,
+                    title: property.title
+                });
+
+                const infoWindow = new google.maps.InfoWindow({
+                    content: `<h3>${property.title}</h3><p>${property.description}</p>`
+                });
+
+                marker.addListener('click', () => {
+                    infoWindow.open(map, marker);
+                });
+            });
+        }
+    </script>
+</body>
+</html>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Property Locations with Secure API Key</title>
+    <script src="https://maps.googleapis.com/maps/api/js?key=<%= process.env.GOOGLE_MAPS_API_KEY %>&callback=initMap" async defer></script>
+    <style>
+        #map {
+            height: 100%;
+        }
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <script>
+        let map;
+
+        async function initMap() {
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: { lat: -1.286389, lng: 36.817223 },
+                zoom: 12
+            });
+
+            const response = await fetch('/api/properties');
+            const properties = await response.json();
+
+            properties.forEach(property => {
+                const marker = new google.maps.Marker({
+                    position: { lat: property.lat, lng: property.lng },
+                    map,
+                    title: property.title
+                });
+
+                const infoWindow = new google.maps.InfoWindow({
+                    content: `<h3>${property.title}</h3><p>${property.description}</p>`
+                });
+
+                marker.addListener('click', () => {
+                    infoWindow.open(map, marker);
+                });
+            });
+        }
+    </script>
+</body>
+</html>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Enhanced Property Locations</title>
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap" async defer></script>
+    <script src="https://unpkg.com/@google/markerclustererplus@5.1.0/dist/markerclustererplus.min.js"></script>
+    <style>
+        #map {
+            height: 100%;
+        }
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <script>
+        let map;
+
+        async function initMap() {
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: { lat: -1.286389, lng: 36.817223 },
+                zoom: 12
+            });
+
+            try {
+                const response = await fetch('/api/properties');
+                const properties = await response.json();
+
+                const markers = properties.map(property => {
+                    const marker = new google.maps.Marker({
+                        position: { lat: property.lat, lng: property.lng },
+                        map,
+                        title: property.title,
+                        icon: 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png' // Custom marker icon
+                    });
+
+                    const infoWindow = new google.maps.InfoWindow({
+                        content: `<h3>${property.title}</h3><p>${property.description}</p>`
+                    });
+
+                    marker.addListener('click', () => {
+                        infoWindow.open(map, marker);
+                    });
+
+                    return marker;
+                });
+
+                // Marker clustering
+                new MarkerClusterer(map, markers, {
+                    imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'
+                });
+            } catch (error) {
+                console.error('Error fetching property data:', error);
+                alert('Failed to load property data. Please try again later.');
+            }
+        }
+    </script>
+</body>
+</html>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Property Locations with Secure API Key</title>
+    <script src="https://maps.googleapis.com/maps/api/js?key=<%= process.env.GOOGLE_MAPS_API_KEY %>&callback=initMap" async defer></script>
+    <style>
+        #map {
+            height: 100%;
+        }
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <script>
+        let map;
+
+        async function initMap() {
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: { lat: -1.286389, lng: 36.817223 },
+                zoom: 12
+            });
+
+            try {
+                const response = await fetch('/api/properties');
+                const properties = await response.json();
+
+                const markers = properties.map(property => {
+                    const marker = new google.maps.Marker({
+                        position: { lat: property.lat, lng: property.lng },
+                        map,
+                        title: property.title,
+                        icon: 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png' // Custom marker icon
+                    });
+
+                    const infoWindow = new google.maps.InfoWindow({
+                        content: `<h3>${property.title}</h3><p>${property.description}</p>`
+                    });
+
+                    marker.addListener('click', () => {
+                        infoWindow.open(map, marker);
+                    });
+
+                    return marker;
+                });
+
+                // Marker clustering
+                new MarkerClusterer(map, markers, {
+                    imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'
+                });
+            } catch (error) {
+                console.error('Error fetching property data:', error);
+                alert('Failed to load property data. Please try again later.');
+            }
+        }
+    </script>
+</body>
+</html>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Enhanced Property Details</title>
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap" async defer></script>
+    <style>
+        #map {
+            height: 100%;
+        }
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        #search-box {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 5;
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div id="search-box">
+        <input id="search-input" type="text" placeholder="Search properties...">
+        <button onclick="searchProperties()">Search</button>
+    </div>
+    <div id="map"></div>
+    <script>
+        let map;
+        let allProperties = [];
+
+        async function initMap() {
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: { lat: -1.286389, lng: 36.817223 },
+                zoom: 12
+            });
+
+            try {
+                const response = await fetch('/api/properties');
+                allProperties = await response.json();
+                displayProperties(allProperties);
+            } catch (error) {
+                console.error('Error fetching property data:', error);
+                alert('Failed to load property data. Please try again later.');
+            }
+        }
+
+        function displayProperties(properties) {
+            properties.forEach(property => {
+                const marker = new google.maps.Marker({
+                    position: { lat: property.lat, lng: property.lng },
+                    map,
+                    title: property.title,
+                    icon: 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png'
+                });
+
+                const infoWindowContent = `
+                    <div>
+                        <h3>${property.title}</h3>
+                        <p>${property.description}</p>
+                        <img src="${property.image}" alt="${property.title}" style="width:100px;height:auto;">
+                        <p>Availability: ${property.availability}</p>
+                        <button onclick="bookProperty(${property.id})">Book Now</button>
+                        <h4>Reviews:</h4>
+                        <ul>
+                            ${property.reviews.map(review => `<li>${review.rating} stars - ${review.comment}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+
+                const infoWindow = new google.maps.InfoWindow({
+                    content: infoWindowContent
+                });
+
+                marker.addListener('click', () => {
+                    infoWindow.open(map, marker);
+                });
+            });
+        }
+
+        function bookProperty(propertyId) {
+            alert(`Booking property with ID: ${propertyId}`);
+        }
+
+        function searchProperties() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            const filteredProperties = allProperties.filter(property => 
+                property.title.toLowerCase().includes(query) ||
+                property.description.toLowerCase().includes(query)
+            );
+            displayProperties(filteredProperties);
+        }
+    </script>
+</body>
+</html>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Enhanced Directions</title>
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap" async defer></script>
+    <style>
+        #map {
+            height: 100%;
+        }
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        #controls {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 5;
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        }
+        #directions-panel {
+            height: 100%;
+            float: right;
+            width: 30%;
+            overflow: auto;
+        }
+        #map {
+            height: 100%;
+            float: left;
+            width: 70%;
+        }
+    </style>
+</head>
+<body>
+    <div id="controls">
+        <input id="start" type="text" placeholder="Start location">
+        <input id="end" type="text" placeholder="End location">
+        <button onclick="calculateRoute()">Get Directions</button>
+        <button onclick="useCurrentLocation()">Use Current Location</button>
+    </div>
+    <div id="map"></div>
+    <div id="directions-panel"></div>
+    <script>
+        let map;
+        let directionsService;
+        let directionsRenderer;
+
+        function initMap() {
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: { lat: -1.286389, lng: 36.817223 },
+                zoom: 12
+            });
+
+            directionsService = new google.maps.DirectionsService();
+            directionsRenderer = new google.maps.DirectionsRenderer();
+            directionsRenderer.setMap(map);
+            directionsRenderer.setPanel(document.getElementById('directions-panel'));
+        }
+
+        function calculateRoute() {
+            const start = document.getElementById('start').value;
+            const end = document.getElementById('end').value;
+
+            if (!start || !end) {
+                alert('Please enter both start and end locations.');
+                return;
+            }
+
+            directionsService.route({
+                origin: start,
+                destination: end,
+                travelMode: 'DRIVING'
+            }, (response, status) => {
+                if (status === 'OK') {
+                    directionsRenderer.setDirections(response);
+                } else {
+                    alert('Directions request failed due to ' + status);
+                }
+            });
+        }
+
+        function useCurrentLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(position => {
+                    const pos = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    };
+
+                    const geocoder = new google.maps.Geocoder();
+                    geocoder.geocode({ location: pos }, (results, status) => {
+                        if (status === 'OK') {
+                            if (results[0]) {
+                                document.getElementById('start').value = results[0].formatted_address;
+                            } else {
+                                alert('No results found');
+                            }
+                        } else {
+                            alert('Geocoder failed due to: ' + status);
+                        }
+                    });
+                }, () => {
+                    alert('Error: The Geolocation service failed.');
+                });
+            } else {
+                alert('Error: Your browser doesn\'t support geolocation.');
+            }
+        }
+    </script>
+</body>
+</html>
