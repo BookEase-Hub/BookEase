@@ -1767,4 +1767,163 @@ up<!-- index.html -->
     </script>
 </body>
 </html>
-   
+ <!DOCTYPE html>
+<html>
+<head>
+    <title>Real-Time Property Booking</title>
+    <style>
+        #properties {
+            margin: 20px;
+        }
+        .property {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        .booked {
+            background-color: #f8d7da;
+        }
+    </style>
+</head>
+<body>
+    <div id="properties"></div>
+    <script>
+        const userId = 'UserB'; // Example user ID
+        const ws = new WebSocket('ws://localhost:3000');
+
+        ws.onmessage = (event) => {
+            const message = JSON.parse(event.data);
+            if (message.type === 'BOOKED') {
+                alert(`Property "${message.property.title}" has been booked by another user.`);
+                loadProperties();
+            }
+        };
+
+        async function loadProperties() {
+            const response = await fetch('/api/properties');
+            const properties = await response.json();
+            const propertiesDiv = document.getElementById('properties');
+            propertiesDiv.innerHTML = properties.map(property => `
+                <div class="property ${property.booked ? 'booked' : ''}">
+                    <h3>${property.title}</h3>
+                    <p>${property.description}</p>
+                    ${property.booked ? '<p>Already booked</p>' : `<button onclick="bookProperty(${property.id})">Book Now</button>`}
+                </div>
+            `).join('');
+        }
+
+        async function bookProperty(propertyId) {
+            const response = await fetch('/api/book', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ propertyId, userId })
+            });
+            const result = await response.json();
+            if (result.success) {
+                alert(`You have successfully booked "${result.property.title}".`);
+                loadProperties();
+            } else {
+                alert(result.message);
+            }
+        }
+
+        loadProperties();
+    </script>
+</body>
+</html>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Real-Time Property Booking with Feedback</title>
+    <style>
+        #properties {
+            margin: 20px;
+        }
+        .property {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        .booked {
+            background-color: #f8d7da;
+        }
+        #feedback {
+            margin: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="properties"></div>
+    <div id="feedback">
+        <h3>Submit Feedback</h3>
+        <textarea id="feedback-text" rows="4" cols="50" placeholder="Enter your feedback here..."></textarea><br>
+        <button onclick="submitFeedback()">Submit Feedback</button>
+    </div>
+    <script>
+        const userId = 'UserB'; // Example user ID
+        const ws = new WebSocket('ws://localhost:3000');
+
+        ws.onmessage = (event) => {
+            const message = JSON.parse(event.data);
+            if (message.type === 'BOOKED') {
+                alert(`Property "${message.property.title}" has been booked by another user.`);
+                loadProperties();
+            }
+        };
+
+        async function loadProperties() {
+            const response = await fetch('/api/properties');
+            const properties = await response.json();
+            const propertiesDiv = document.getElementById('properties');
+            propertiesDiv.innerHTML = properties.map(property => `
+                <div class="property ${property.booked ? 'booked' : ''}">
+                    <h3>${property.title}</h3>
+                    <p>${property.description}</p>
+                    ${property.booked ? '<p>Already booked</p>' : `<button onclick="bookProperty('${property._id}')">Book Now</button>`}
+                </div>
+            `).join('');
+        }
+
+        async function bookProperty(propertyId) {
+            const response = await fetch('/api/book', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ propertyId, userId })
+            });
+            const result = await response.json();
+            if (result.success) {
+                alert(`You have successfully booked "${result.property.title}".`);
+                loadProperties();
+            } else {
+                alert(result.message);
+            }
+        }
+
+        async function submitFeedback() {
+            const feedbackText = document.getElementById('feedback-text').value;
+            const propertyId = prompt('Enter the property ID for your feedback:');
+            const response = await fetch('/api/feedback', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ userId, propertyId, feedback: feedbackText })
+            });
+            const result = await response.json();
+            if (result.success) {
+                alert('Thank you for your feedback!');
+                document.getElementById('feedback-text').value = '';
+            } else {
+                alert('Failed to submit feedback. Please try again later.');
+            }
+        }
+
+        loadProperties();
+    </script>
+</body>
+</html>
+  
