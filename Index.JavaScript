@@ -5616,6 +5616,231 @@ app.get('/api/properties', (req, res) => {
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
 });
+const express = require('express');
+const http = require('http');
+const WebSocket = require('ws');
+const bodyParser = require('body-parser');
+
+const app = express();
+const server = http.createServer(app);
+const wss = new WebSocket.Server({ server });
+
+app.use(bodyParser.json());
+
+let properties = [
+    { id: 1, title: 'Property 1', description: 'Beautiful 3-bedroom house', booked: false },
+    { id: 2, title: 'Property 2', description: 'Modern apartment in the city center', booked: false }
+];
+
+let clients = [];
+
+wss.on('connection', (ws) => {
+    clients.push(ws);
+    ws.on('close', () => {
+        clients = clients.filter(client => client !== ws);
+    });
+});
+
+app.post('/api/book', (req, res) => {
+    const { propertyId, userId } = req.body;
+    const property = properties.find(p => p.id === propertyId);
+
+    if (property && !property.booked) {
+        property.booked = true;
+        property.bookedBy = userId;
+        property.bookedAt = new Date();
+
+        // Notify all clients about the booking
+        clients.forEach(client => {
+            if (client.readyState === WebSocket.OPEN) {
+                client.send(JSON.stringify({ type: 'BOOKED', property }));
+            }
+        });
+
+        res.json({ success: true, property });
+    } else {
+        res.status(400).json({ success: false, message: 'Property already booked' });
+    }
+});
+
+app.get('/api/properties', (req, res) => {
+    res.json(properties);
+});
+
+server.listen(3000, () => {
+    console.log('Server running on http://localhost:3000');
+});
+const express = require('express');
+const http = require('http');
+const WebSocket = require('ws');
+const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
+
+const app = express();
+const server = http.createServer(app);
+const wss = new WebSocket.Server({ server });
+
+app.use(bodyParser.json());
+
+// Connect to MongoDB
+mongoose.connect('mongodb://localhost:27017/property_booking', { useNewUrlParser: true, useUnifiedTopology: true });
+
+const propertySchema = new mongoose.Schema({
+    title: String,
+    description: String,
+    lat: Number,
+    lng: Number,
+    booked: Boolean,
+    bookedBy: String,
+    bookedAt: Date
+});
+
+const feedbackSchema = new mongoose.Schema({
+    userId: String,
+    propertyId: mongoose.Schema.Types.ObjectId,
+    feedback: String,
+    createdAt: { type: Date, default: Date.now }
+});
+
+const Property = mongoose.model('Property', propertySchema);
+const Feedback = mongoose.model('Feedback', feedbackSchema);
+
+let clients = [];
+
+wss.on('connection', (ws) => {
+    clients.push(ws);
+    ws.on('close', () => {
+        clients = clients.filter(client => client !== ws);
+    });
+});
+
+app.post('/api/book', async (req, res) => {
+    const { propertyId, userId } = req.body;
+    const property = await Property.findById(propertyId);
+
+    if (property && !property.booked) {
+        property.booked = true;
+        property.bookedBy = userId;
+        property.bookedAt = new Date();
+        await property.save();
+
+        // Notify all clients about the booking
+        clients.forEach(client => {
+            if (client.readyState === WebSocket.OPEN) {
+                client.send(JSON.stringify({ type: 'BOOKED', property }));
+            }
+        });
+
+        res.json({ success: true, property });
+    } else {
+        res.status(400).json({ success: false, message: 'Property already booked' });
+    }
+});
+
+app.post('/api/feedback', async (req, res) => {
+    const { userId, propertyId, feedback } = req.body;
+    const newFeedback = new Feedback({ userId, propertyId, feedback });
+    await newFeedback.save();
+    res.json({ success: true, feedback: newFeedback });
+});
+
+app.get('/api/properties', async (req, res) => {
+    const properties = await Property.find();
+    res.json(properties);
+});
+
+server.listen(3000, () => {
+    console.log('Server running on http://localhost:3000');
+});
+const express = require('express');
+const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
+
+const app = express();
+app.use(bodyParser.json());
+
+mongoose.connect('mongodb://localhost:27017/property_booking', { useNewUrlParser: true, useUnifiedTopology: true });
+
+const propertySchema = new mongoose.Schema({
+    title: String,
+    description: String,
+    lat: Number,
+    lng: Number,
+    booked: Boolean,
+    bookedBy: String,
+    bookedAt: Date
+});
+
+const Property = mongoose.model('Property', propertySchema);
+
+app.get('/api/properties', async (req, res) => {
+    const properties = await Property.find();
+    res.json(properties);
+});
+
+app.post('/api/book', async (req, res) => {
+    const { propertyId, userId } = req.body;
+    const property = await Property.findById(propertyId);
+
+    if (property && !property.booked) {
+        property.booked = true;
+        property.bookedBy = userId;
+        property.bookedAt = new Date();
+        await property.save();
+        res.json({ success: true, property });
+    } else {
+        res.status(400).json({ success: false, message: 'Property already booked' });
+    }
+});
+
+app.listen(3000, () => {
+    console.log('Server running on http://localhost:3000');
+});
+const express = require('express');
+const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
+
+const app = express();
+app.use(bodyParser.json());
+
+mongoose.connect('mongodb://localhost:27017/property_booking', { useNewUrlParser: true, useUnifiedTopology: true });
+
+const propertySchema = new mongoose.Schema({
+    title: String,
+    description: String,
+    lat: Number,
+    lng: Number,
+    booked: Boolean,
+    bookedBy: String,
+    bookedAt: Date,
+    amenities: [String]
+});
+
+const Property = mongoose.model('Property', propertySchema);
+
+app.get('/api/properties', async (req, res) => {
+    const properties = await Property.find();
+    res.json(properties);
+});
+
+app.post('/api/book', async (req, res) => {
+    const { propertyId, userId } = req.body;
+    const property = await Property.findById(propertyId);
+
+    if (property && !property.booked) {
+        property.booked = true;
+        property.bookedBy = userId;
+        property.bookedAt = new Date();
+        await property.save();
+        res.json({ success: true, property });
+    } else {
+        res.status(400).json({ success: false, message: 'Property already booked' });
+    }
+});
+
+app.listen(3000, () => {
+    console.log('Server running on http://localhost:3000');
+});
 
 
 
