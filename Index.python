@@ -538,5 +538,42 @@ def recommend():
 
 if __name__ == '__main__':
     app.run(debug=True)
+from flask import Flask, request, jsonify
+import pandas as pd
+from sklearn.neighbors import NearestNeighbors
+from geopy.distance import geodesic
+
+app = Flask(__name__)
+
+# Sample property data with geospatial coordinates
+properties = pd.DataFrame([
+    {'id': 1, 'title': 'Property 1', 'description': 'Beautiful 3-bedroom house', 'lat': -1.292066, 'lng': 36.821946, 'features': [1, 0, 1, 0]},
+    {'id': 2, 'title': 'Property 2', 'description': 'Modern apartment in the city center', 'lat': -1.28333, 'lng': 36.81667, 'features': [0, 1, 0, 1]},
+    {'id': 3, 'title': 'Property 3', 'description': 'Cozy cottage', 'lat': -1.30000, 'lng': 36.80000, 'features': [1, 1, 0, 0]},
+    {'id': 4, 'title': 'Property 4', 'description': 'Luxury villa', 'lat': -1.31000, 'lng': 36.81000, 'features': [0, 0, 1, 1]}
+])
+
+# Train a simple recommendation model
+model = NearestNeighbors(n_neighbors=2, algorithm='auto').fit(list(properties['features']))
+
+@app.route('/api/recommend', methods=['POST'])
+def recommend():
+    user_preferences = request.json['preferences']
+    user_location = request.json['location']
+    distances, indices = model.kneighbors([user_preferences])
+    recommended_properties = properties.iloc[indices[0]].to_dict(orient='records')
+
+    # Filter recommendations based on proximity to user's location
+    location_based_recommendations = []
+    for property in recommended_properties:
+        property_location = (property['lat'], property['lng'])
+        distance = geodesic(user_location, property_location).km
+        if distance <= 10:  # Example: recommend properties within 10 km radius
+            location_based_recommendations.append(property)
+
+    return jsonify(location_based_recommendations)
+
+if __name__ == '__main__':
+    app.run(debug=True)
 
 
