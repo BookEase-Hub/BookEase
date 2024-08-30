@@ -1926,4 +1926,250 @@ up<!-- index.html -->
     </script>
 </body>
 </html>
-  
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Property Booking with Google Maps</title>
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap" async defer></script>
+    <style>
+        #map {
+            height: 100%;
+        }
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        #properties {
+            margin: 20px;
+        }
+        .property {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        .booked {
+            background-color: #f8d7da;
+        }
+    </style>
+</head>
+<body>
+    <div id="properties"></div>
+    <div id="map"></div>
+    <script>
+        let map;
+        let userLocation = null;
+
+        function initMap() {
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: { lat: -1.286389, lng: 36.817223 },
+                zoom: 12
+            });
+            loadProperties();
+        }
+
+        async function loadProperties() {
+            const response = await fetch('/api/properties');
+            const properties = await response.json();
+            const propertiesDiv = document.getElementById('properties');
+            propertiesDiv.innerHTML = properties.map(property => `
+                <div class="property ${property.booked ? 'booked' : ''}">
+                    <h3>${property.title}</h3>
+                    <p>${property.description}</p>
+                    <button onclick="showOnMap(${property.lat}, ${property.lng})">Show on Map</button>
+                    ${property.booked ? '<p>Already booked</p>' : `<button onclick="bookProperty('${property._id}')">Book Now</button>`}
+                </div>
+            `).join('');
+        }
+
+        function showOnMap(lat, lng) {
+            const position = { lat, lng };
+            map.setCenter(position);
+            new google.maps.Marker({
+                position,
+                map
+            });
+        }
+
+        async function bookProperty(propertyId) {
+            const response = await fetch('/api/book', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ propertyId, userId: 'UserA' })
+            });
+            const result = await response.json();
+            if (result.success) {
+                alert(`You have successfully booked "${result.property.title}".`);
+                loadProperties();
+                showDirections(result.property.lat, result.property.lng);
+            } else {
+                alert(result.message);
+            }
+        }
+
+        function showDirections(lat, lng) {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(position => {
+                    userLocation = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    };
+                    const directionsService = new google.maps.DirectionsService();
+                    const directionsRenderer = new google.maps.DirectionsRenderer();
+                    directionsRenderer.setMap(map);
+
+                    const request = {
+                        origin: userLocation,
+                        destination: { lat, lng },
+                        travelMode: 'DRIVING'
+                    };
+
+                    directionsService.route(request, (result, status) => {
+                        if (status === 'OK') {
+                            directionsRenderer.setDirections(result);
+                        } else {
+                            alert('Directions request failed due to ' + status);
+                        }
+                    });
+                });
+            } else {
+                alert('Geolocation is not supported by this browser.');
+            }
+        }
+    </script>
+</body>
+</html>
+ <!DOCTYPE html>
+<html>
+<head>
+    <title>Property Booking with Google Maps</title>
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap" async defer></script>
+    <style>
+        #map {
+            height: 100%;
+        }
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        #properties {
+            margin: 20px;
+        }
+        .property {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        .booked {
+            background-color: #f8d7da;
+        }
+    </style>
+</head>
+<body>
+    <div id="properties"></div>
+    <div id="map"></div>
+    <script>
+        let map;
+        let userLocation = null;
+
+        function initMap() {
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: { lat: -1.286389, lng: 36.817223 },
+                zoom: 12
+            });
+            loadProperties();
+        }
+
+        async function loadProperties() {
+            const response = await fetch('/api/properties');
+            const properties = await response.json();
+            const propertiesDiv = document.getElementById('properties');
+            propertiesDiv.innerHTML = properties.map(property => `
+                <div class="property ${property.booked ? 'booked' : ''}">
+                    <h3>${property.title}</h3>
+                    <p>${property.description}</p>
+                    <button onclick="showOnMap(${property.lat}, ${property.lng}, '${property.title}', '${property.description}', ${JSON.stringify(property.amenities)})">Show on Map</button>
+                    ${property.booked ? '<p>Already booked</p>' : `<button onclick="bookProperty('${property._id}')">Book Now</button>`}
+                </div>
+            `).join('');
+        }
+
+        function showOnMap(lat, lng, title, description, amenities) {
+            const position = { lat, lng };
+            map.setCenter(position);
+            const marker = new google.maps.Marker({
+                position,
+                map
+            });
+
+            const infoWindowContent = `
+                <div>
+                    <h3>${title}</h3>
+                    <p>${description}</p>
+                    <h4>Amenities:</h4>
+                    <ul>${amenities.map(amenity => `<li>${amenity}</li>`).join('')}</ul>
+                </div>
+            `;
+            const infoWindow = new google.maps.InfoWindow({
+                content: infoWindowContent
+            });
+
+            marker.addListener('click', () => {
+                infoWindow.open(map, marker);
+            });
+        }
+
+        async function bookProperty(propertyId) {
+            const response = await fetch('/api/book', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ propertyId, userId: 'UserA' })
+            });
+            const result = await response.json();
+            if (result.success) {
+                alert(`You have successfully booked "${result.property.title}".`);
+                loadProperties();
+                showDirections(result.property.lat, result.property.lng);
+            } else {
+                alert(result.message);
+            }
+        }
+
+        function showDirections(lat, lng) {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(position => {
+                    userLocation = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    };
+                    const directionsService = new google.maps.DirectionsService();
+                    const directionsRenderer = new google.maps.DirectionsRenderer();
+                    directionsRenderer.setMap(map);
+
+                    const request = {
+                        origin: userLocation,
+                        destination: { lat, lng },
+                        travelMode: 'DRIVING'
+                    };
+
+                    directionsService.route(request, (result, status) => {
+                        if (status === 'OK') {
+                            directionsRenderer.setDirections(result);
+                        } else {
+                            alert('Directions request failed due to ' + status);
+                        }
+                    });
+                });
+            } else {
+                alert('Geolocation is not supported by this browser.');
+            }
+        }
+    </script>
+</body>
+</html>
+ 
