@@ -6457,6 +6457,183 @@ const styles = StyleSheet.create({
 });
 
 export default Chat;
+const express = require('express');
+const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+const http = require('http');
+const WebSocket = require('ws');
+const nodemailer = require('nodemailer');
+
+const app = express();
+const server = http.createServer(app);
+const wss = new WebSocket.Server({ server });
+
+app.use(bodyParser.json());
+app.use(helmet()); // Security middleware
+app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 100 })); // Rate limiting
+
+mongoose.connect('mongodb://localhost:27017/property_booking', { useNewUrlParser: true, useUnifiedTopology: true });
+
+const propertySchema = new mongoose.Schema({
+    title: String,
+    description: String,
+    lat: Number,
+    lng: Number,
+    price: Number,
+    amenities: [String],
+    hostId: String
+});
+
+const userSchema = new mongoose.Schema({
+    username: String,
+    email: String,
+    isHost: Boolean,
+    online: Boolean
+});
+
+const Property = mongoose.model('Property', propertySchema);
+const User = mongoose.model('User', userSchema);
+
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: 'your-email@gmail.com',
+        pass: 'your-email-password'
+    }
+});
+
+app.post('/api/properties', async (req, res) => {
+    const { title, description, lat, lng, price, amenities, hostId } = req.body;
+    const property = new Property({ title, description, lat, lng, price, amenities, hostId });
+    await property.save();
+
+    notifyHost(hostId, `Your property "${title}" has been successfully uploaded.`);
+
+    res.json({ success: true, property });
+});
+
+app.put('/api/properties/:id', async (req, res) => {
+    const { id } = req.params;
+    const { title, description, lat, lng, price, amenities, hostId } = req.body;
+    const property = await Property.findByIdAndUpdate(id, { title, description, lat, lng, price, amenities, hostId }, { new: true });
+
+    notifyHost(hostId, `Your property "${title}" has been successfully updated.`);
+
+    res.json({ success: true, property });
+});
+
+function notifyHost(hostId, message) {
+    User.findById(hostId, (err, host) => {
+        if (err) {
+            console.error('Host lookup error:', err);
+            return;
+        }
+
+        if (host.online) {
+            wss.clients.forEach(client => {
+                if (client.readyState === WebSocket.OPEN && client.userId === host._id.toString()) {
+                    client.send(JSON.stringify({ type: 'notification', message }));
+                }
+            });
+        } else {
+            const mailOptions = {
+                from: 'your-email@gmail.com',
+                to: host.email,
+                subject: 'Property Update Notification',
+                text: message
+            };
+            transporter.sendMail(mailOptions, (error, info) => {
+                if (error) {
+                    console.error('Email error:', error);
+                } else {
+                    console.log('Email sent:', info.response);
+                }
+            });
+        }
+    });
+}
+
+wss.on('connection', (ws, req) => {
+    const userId = req.url.split('?userId=')[1];
+    ws.userId = userId;
+
+    ws.on('message', message => {
+        const data = JSON.parse(message);
+        if (data.type === 'status') {
+            User.findByIdAndUpdate(userId, { online: data.online }, { new: true }, (err, user) => {
+                if (err) {
+                    console.error('User status update error:', err);
+                }
+            });
+        }
+    });
+
+    ws.on('close', () => {
+        User.findByIdAndUpdate(userId, { online: false }, { new: true }, (err, user) => {
+            if (err) {
+                console.error('User status update error:', err);
+            }
+        });
+    });
+});
+
+server.listen(3000, () => {
+    console.log('Server running on http://localhost:3000');
+});
+import React, { useState, useEffect } from 'react';
+import { View, Text, FlatList, StyleSheet } from 'react-native';
+import { WebSocket } from 'ws';
+
+const Notifications = ({ userId }) => {
+    const [notifications, setNotifications] = useState([]);
+    const [ws, setWs] = useState(null);
+
+    useEffect(() => {
+        const socket = new WebSocket(`ws://localhost:3000?userId=${userId}`);
+        setWs(socket);
+
+        socket.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            if (data.type === 'notification') {
+                setNotifications(prevNotifications => [...prevNotifications, data.message]);
+            }
+        };
+
+        return () => {
+            socket.close();
+        };
+    }, [userId]);
+
+    return (
+        <View style={styles.container}>
+            <FlatList
+                data={notifications}
+                renderItem={({ item }) => (
+                    <View style={styles.notification}>
+                        <Text>{item}</Text>
+                    </View>
+                )}
+                keyExtractor={(item, index) => index.toString()}
+            />
+        </View>
+    );
+};
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        padding: 10
+    },
+    notification: {
+        padding: 10,
+        borderBottomWidth: 1,
+        borderBottomColor: '#ccc'
+    }
+});
+
+export default Notifications;
 
 
 
