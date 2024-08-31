@@ -2563,5 +2563,39 @@
     </script>
 </body>
 </html>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Host Dashboard</title>
+    <style>
+        #status {
+            margin: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="status">
+        <label>
+            <input type="checkbox" id="online-status">
+            Online
+        </label>
+    </div>
+    <script>
+        const ws = new WebSocket('ws://localhost:3001');
+
+        document.getElementById('online-status').addEventListener('change', (event) => {
+            const online = event.target.checked;
+            ws.send(JSON.stringify({ type: 'hostStatus', hostId: 'HostA', online }));
+        });
+
+        ws.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            if (data.type === 'bookingNotification') {
+                alert(`New booking from user ${data.userId} for property ${data.propertyId}`);
+            }
+        };
+    </script>
+</body>
+</html>
       
  
