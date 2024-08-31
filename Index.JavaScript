@@ -6036,6 +6036,81 @@ describe('Payment API', () => {
         expect(response.body.success).toBe(false);
     });
 });
+const express = require('express');
+const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
+const axios = require('axios');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+
+const app = express();
+app.use(bodyParser.json());
+app.use(helmet()); // Security middleware
+app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 100 })); // Rate limiting
+
+mongoose.connect('mongodb://localhost:27017/mobile_money', { useNewUrlParser: true, useUnifiedTopology: true });
+
+const transactionSchema = new mongoose.Schema({
+    userId: String,
+    amount: Number,
+    currency: String,
+    status: String,
+    createdAt: { type: Date, default: Date.now }
+});
+
+const Transaction = mongoose.model('Transaction', transactionSchema);
+
+app.post('/api/pay', async (req, res) => {
+    const { userId, amount, currency, paymentMethod } = req.body;
+
+    try {
+        // Example API call to FNB eWallet
+        const response = await axios.post('https://api.fnb.co.za/ewallet/send', {
+            userId,
+            amount,
+            currency,
+            paymentMethod
+        }, {
+            headers: {
+                'Authorization': 'Bearer YOUR_ACCESS_TOKEN'
+            }
+        });
+
+        const transaction = new Transaction({ userId, amount, currency, status: 'Pending' });
+        await transaction.save();
+
+        res.json({ success: true, transaction });
+    } catch (error) {
+        console.error('Payment error:', error);
+        res.status(500).json({ success: false, message: 'Payment failed', error: error.message });
+    }
+});
+
+app.post('/api/callback', async (req, res) => {
+    const { Body } = req.body;
+    const { ResultCode, ResultDesc, CallbackMetadata } = Body.stkCallback;
+
+    if (ResultCode === 0) {
+        const transaction = await Transaction.findOneAndUpdate(
+            { _id: CallbackMetadata.Item[1].Value },
+            { status: 'Completed' },
+            { new: true }
+        );
+        res.json({ success: true, transaction });
+    } else {
+        console.error('Callback error:', ResultDesc);
+        res.status(400).json({ success: false, message: ResultDesc });
+    }
+});
+
+app.use((err, req, res, next) => {
+    console.error('Server error:', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+});
+
+app.listen(3000, () => {
+    console.log('Server running on http://localhost:3000');
+});
 
 
 
