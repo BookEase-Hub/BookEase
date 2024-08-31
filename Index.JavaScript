@@ -5841,6 +5841,201 @@ app.post('/api/book', async (req, res) => {
 app.listen(3000, () => {
     console.log('Server running on http://localhost:3000');
 });
+const express = require('express');
+const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
+const axios = require('axios');
+
+const app = express();
+app.use(bodyParser.json());
+
+mongoose.connect('mongodb://localhost:27017/mobile_money', { useNewUrlParser: true, useUnifiedTopology: true });
+
+const transactionSchema = new mongoose.Schema({
+    userId: String,
+    amount: Number,
+    currency: String,
+    status: String,
+    createdAt: { type: Date, default: Date.now }
+});
+
+const Transaction = mongoose.model('Transaction', transactionSchema);
+
+app.post('/api/pay', async (req, res) => {
+    const { userId, amount, currency, paymentMethod } = req.body;
+
+    // Example API call to M-PESA
+    try {
+        const response = await axios.post('https://api.safaricom.co.ke/mpesa/stkpush/v1/processrequest', {
+            BusinessShortCode: 'YOUR_SHORTCODE',
+            Password: 'YOUR_PASSWORD',
+            Timestamp: 'YOUR_TIMESTAMP',
+            TransactionType: 'CustomerPayBillOnline',
+            Amount: amount,
+            PartyA: 'USER_PHONE_NUMBER',
+            PartyB: 'YOUR_SHORTCODE',
+            PhoneNumber: 'USER_PHONE_NUMBER',
+            CallBackURL: 'YOUR_CALLBACK_URL',
+            AccountReference: 'ACCOUNT_REFERENCE',
+            TransactionDesc: 'Payment Description'
+        }, {
+            headers: {
+                'Authorization': 'Bearer YOUR_ACCESS_TOKEN'
+            }
+        });
+
+        const transaction = new Transaction({ userId, amount, currency, status: 'Pending' });
+        await transaction.save();
+
+        res.json({ success: true, transaction });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Payment failed', error: error.message });
+    }
+});
+
+app.post('/api/callback', async (req, res) => {
+    const { Body } = req.body;
+    const { ResultCode, ResultDesc, CallbackMetadata } = Body.stkCallback;
+
+    if (ResultCode === 0) {
+        const transaction = await Transaction.findOneAndUpdate(
+            { _id: CallbackMetadata.Item[1].Value },
+            { status: 'Completed' },
+            { new: true }
+        );
+        res.json({ success: true, transaction });
+    } else {
+        res.status(400).json({ success: false, message: ResultDesc });
+    }
+});
+
+app.listen(3000, () => {
+    console.log('Server running on http://localhost:3000');
+});
+const express = require('express');
+const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
+const axios = require('axios');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+
+const app = express();
+app.use(bodyParser.json());
+app.use(helmet()); // Security middleware
+app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 100 })); // Rate limiting
+
+mongoose.connect('mongodb://localhost:27017/mobile_money', { useNewUrlParser: true, useUnifiedTopology: true });
+
+const transactionSchema = new mongoose.Schema({
+    userId: String,
+    amount: Number,
+    currency: String,
+    status: String,
+    createdAt: { type: Date, default: Date.now }
+});
+
+const Transaction = mongoose.model('Transaction', transactionSchema);
+
+app.post('/api/pay', async (req, res) => {
+    const { userId, amount, currency, paymentMethod } = req.body;
+
+    try {
+        // Example API call to M-PESA
+        const response = await axios.post('https://api.safaricom.co.ke/mpesa/stkpush/v1/processrequest', {
+            BusinessShortCode: 'YOUR_SHORTCODE',
+            Password: 'YOUR_PASSWORD',
+            Timestamp: 'YOUR_TIMESTAMP',
+            TransactionType: 'CustomerPayBillOnline',
+            Amount: amount,
+            PartyA: 'USER_PHONE_NUMBER',
+            PartyB: 'YOUR_SHORTCODE',
+            PhoneNumber: 'USER_PHONE_NUMBER',
+            CallBackURL: 'YOUR_CALLBACK_URL',
+            AccountReference: 'ACCOUNT_REFERENCE',
+            TransactionDesc: 'Payment Description'
+        }, {
+            headers: {
+                'Authorization': 'Bearer YOUR_ACCESS_TOKEN'
+            }
+        });
+
+        const transaction = new Transaction({ userId, amount, currency, status: 'Pending' });
+        await transaction.save();
+
+        res.json({ success: true, transaction });
+    } catch (error) {
+        console.error('Payment error:', error);
+        res.status(500).json({ success: false, message: 'Payment failed', error: error.message });
+    }
+});
+
+app.post('/api/callback', async (req, res) => {
+    const { Body } = req.body;
+    const { ResultCode, ResultDesc, CallbackMetadata } = Body.stkCallback;
+
+    if (ResultCode === 0) {
+        const transaction = await Transaction.findOneAndUpdate(
+            { _id: CallbackMetadata.Item[1].Value },
+            { status: 'Completed' },
+            { new: true }
+        );
+        res.json({ success: true, transaction });
+    } else {
+        console.error('Callback error:', ResultDesc);
+        res.status(400).json({ success: false, message: ResultDesc });
+    }
+});
+
+app.use((err, req, res, next) => {
+    console.error('Server error:', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+});
+
+app.listen(3000, () => {
+    console.log('Server running on http://localhost:3000');
+});
+const axios = require('axios');
+const { MongoMemoryServer } = require('mongodb-memory-server');
+const mongoose = require('mongoose');
+const request = require('supertest');
+const app = require('../app'); // Assuming your Express app is exported from app.js
+
+let mongoServer;
+
+beforeAll(async () => {
+    mongoServer = await MongoMemoryServer.create();
+    const uri = mongoServer.getUri();
+    await mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+});
+
+afterAll(async () => {
+    await mongoose.disconnect();
+    await mongoServer.stop();
+});
+
+describe('Payment API', () => {
+    it('should process payment successfully', async () => {
+        jest.spyOn(axios, 'post').mockResolvedValue({ data: { success: true } });
+
+        const response = await request(app)
+            .post('/api/pay')
+            .send({ userId: 'UserA', amount: 100, currency: 'KES', paymentMethod: 'mpesa' });
+
+        expect(response.status).toBe(200);
+        expect(response.body.success).toBe(true);
+    });
+
+    it('should handle payment failure', async () => {
+        jest.spyOn(axios, 'post').mockRejectedValue(new Error('Payment failed'));
+
+        const response = await request(app)
+            .post('/api/pay')
+            .send({ userId: 'UserA', amount: 100, currency: 'KES', paymentMethod: 'mpesa' });
+
+        expect(response.status).toBe(500);
+        expect(response.body.success).toBe(false);
+    });
+});
 
 
 
