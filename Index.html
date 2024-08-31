@@ -2172,4 +2172,127 @@ up<!-- index.html -->
     </script>
 </body>
 </html>
+ <!DOCTYPE html>
+<html>
+<head>
+    <title>Mobile Money Payment</title>
+    <style>
+        #payment-form {
+            margin: 20px;
+        }
+        #payment-form input, #payment-form select, #payment-form button {
+            display: block;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="payment-form">
+        <h3>Make a Payment</h3>
+        <input type="text" id="user-id" placeholder="User ID">
+        <input type="number" id="amount" placeholder="Amount">
+        <select id="currency">
+            <option value="ZAR">ZAR</option>
+        </select>
+        <select id="payment-method">
+            <option value="mpesa">M-PESA</option>
+            <option value="mukuru">Mukuru</option>
+        </select>
+        <button 
+        value="KES">KES</option>
+            <option value="UGX">UGX</option>
+            <option value="TZS">TZS</option>
+        </select>
+        <select id="payment-method">
+            <option value="mpesa">M-PESA</option>
+            <option value="mtn">MTN Mobile Money</option>
+            <option value="airtel">Airtel Money</option>
+        </select>
+        <button onclick="makePayment()">Pay Now</button>
+    </div>
+    <script>
+        async function makePayment() {
+            const userId = document.getElementById('user-id').value;
+            const amount = document.getElementById('amount').value;
+            const currency = document.getElementById('currency').value;
+            const paymentMethod = document.getElementById('payment-method').value;
+
+            try {
+                const response = await fetch('/api/pay', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ userId, amount, currency, paymentMethod })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    alert('Payment successful!');
+                } else {
+                    alert('Payment failed: ' + result.message);
+                }
+            } catch (error) {
+                alert('Payment failed: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>
+ <!DOCTYPE html>
+<html>
+<head>
+    <title>Mobile Money Payment</title>
+    <style>
+        #payment-form {
+            margin: 20px;
+        }
+        #payment-form input, #payment-form select, #payment-form button {
+            display: block;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="payment-form">
+        <h3>Make a Payment</h3>
+        <input type="text" id="user-id" placeholder="User ID">
+        <input type="number" id="amount" placeholder="Amount">
+        <select id="currency">
+            <option value="ZAR">ZAR</option>
+        </select>
+        <select id="payment-method">
+            <option value="mpesa">M-PESA</option>
+            <option value="mukuru">Mukuru</option>
+        </select>
+        <button onclick="makePayment()">Pay Now</button>
+    </div>
+    <script>
+        async function makePayment() {
+            const userId = document.getElementById('user-id').value;
+            const amount = document.getElementById('amount').value;
+            const currency = document.getElementById('currency').value;
+            const paymentMethod = document.getElementById('payment-method').value;
+
+            try {
+                const response = await fetch('/api/pay', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ userId, amount, currency, paymentMethod })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    alert('Payment successful!');
+                } else {
+                    alert('Payment failed: ' + result.message);
+                }
+            } catch (error) {
+                alert('Payment failed: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>
+      
  
