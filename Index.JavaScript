@@ -6175,6 +6175,288 @@ app.get('/api/properties', async (req, res) => {
 app.listen(3000, () => {
     console.log('Server running on http://localhost:3000');
 });
+const express = require('express');
+const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+const http = require('http');
+const WebSocket = require('ws');
+
+const app = express();
+const server = http.createServer(app);
+const wss = new WebSocket.Server({ server });
+
+app.use(bodyParser.json());
+app.use(helmet()); // Security middleware
+app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 100 })); // Rate limiting
+
+mongoose.connect('mongodb://localhost:27017/property_booking', { useNewUrlParser: true, useUnifiedTopology: true });
+
+const propertySchema = new mongoose.Schema({
+    title: String,
+    description: String,
+    lat: Number,
+    lng: Number,
+    price: Number,
+    amenities: [String],
+    hostId: String
+});
+
+const bookingSchema = new mongoose.Schema({
+    userId: String,
+    propertyId: String,
+    status: String,
+    createdAt: { type: Date, default: Date.now }
+});
+
+const hostSchema = new mongoose.Schema({
+    hostId: String,
+    online: Boolean
+});
+
+const Property = mongoose.model('Property', propertySchema);
+const Booking = mongoose.model('Booking', bookingSchema);
+const Host = mongoose.model('Host', hostSchema);
+
+wss.on('connection', (ws) => {
+    ws.on('message', (message) => {
+        const data = JSON.parse(message);
+        if (data.type === 'hostStatus') {
+            Host.findOneAndUpdate({ hostId: data.hostId }, { online: data.online }, { upsert: true }, (err) => {
+                if (err) console.error('Error updating host status:', err);
+            });
+        }
+    });
+});
+
+app.post('/api/book', async (req, res) => {
+    const { userId, propertyId } = req.body;
+    const property = await Property.findById(propertyId);
+
+    if (property) {
+        const booking = new Booking({ userId, propertyId, status: 'Pending' });
+        await booking.save();
+
+        const host = await Host.findOne({ hostId: property.hostId });
+        if (host && host.online) {
+            wss.clients.forEach(client => {
+                if (client.readyState === WebSocket.OPEN) {
+                    client.send(JSON.stringify({ type: 'bookingNotification', propertyId, userId }));
+                }
+            });
+        } else {
+            // Send email or push notification to host
+            console.log('Host is offline. Sending email or push notification...');
+        }
+
+        res.json({ success: true, booking });
+    } else {
+        res.status(400).json({ success: false, message: 'Property not found' });
+    }
+});
+
+app.listen(3000, () => {
+    console.log('Server running on http://localhost:3000');
+    server.listen(3001, () => {
+        console.log('WebSocket server running on ws://localhost:3001');
+    });
+});
+const express = require('express');
+const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+const http = require('http');
+const WebSocket = require('ws');
+const nodemailer = require('nodemailer');
+
+const app = express();
+const server = http.createServer(app);
+const wss = new WebSocket.Server({ server });
+
+app.use(bodyParser.json());
+app.use(helmet()); // Security middleware
+app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 100 })); // Rate limiting
+
+mongoose.connect('mongodb://localhost:27017/property_booking', { useNewUrlParser: true, useUnifiedTopology: true });
+
+const propertySchema = new mongoose.Schema({
+    title: String,
+    description: String,
+    lat: Number,
+    lng: Number,
+    price: Number,
+    amenities: [String],
+    hostId: String
+});
+
+const bookingSchema = new mongoose.Schema({
+    userId: String,
+    propertyId: String,
+    status: String,
+    createdAt: { type: Date, default: Date.now }
+});
+
+const userSchema = new mongoose.Schema({
+    username: String,
+    email: String,
+    isHost: Boolean,
+    online: Boolean
+});
+
+const Property = mongoose.model('Property', propertySchema);
+const Booking = mongoose.model('Booking', bookingSchema);
+const User = mongoose.model('User', userSchema);
+
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: 'your-email@gmail.com',
+        pass: 'your-email-password'
+    }
+});
+
+app.post('/api/book', async (req, res) => {
+    const { userId, propertyId } = req.body;
+    const booking = new Booking({ userId, propertyId, status: 'Pending' });
+    await booking.save();
+
+    const property = await Property.findById(propertyId);
+    const host = await User.findById(property.hostId);
+
+    if (host.online) {
+        wss.clients.forEach(client => {
+            if (client.readyState === WebSocket.OPEN && client.userId === host._id.toString()) {
+                client.send(JSON.stringify({ type: 'booking', message: `New booking request for ${property.title}` }));
+            }
+        });
+    } else {
+        const mailOptions = {
+            from: 'your-email@gmail.com',
+            to: host.email,
+            subject: 'New Booking Request',
+            text: `You have a new booking request for ${property.title}. Please log in to your account to respond.`
+        };
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                console.error('Email error:', error);
+            } else {
+                console.log('Email sent:', info.response);
+            }
+        });
+    }
+
+    res.json({ success: true, booking });
+});
+
+wss.on('connection', (ws, req) => {
+    const userId = req.url.split('?userId=')[1];
+    ws.userId = userId;
+
+    ws.on('message', message => {
+        const data = JSON.parse(message);
+        if (data.type === 'status') {
+            User.findByIdAndUpdate(userId, { online: data.online }, { new: true }, (err, user) => {
+                if (err) {
+                    console.error('User status update error:', err);
+                }
+            });
+        }
+    });
+
+    ws.on('close', () => {
+        User.findByIdAndUpdate(userId, { online: false }, { new: true }, (err, user) => {
+            if (err) {
+                console.error('User status update error:', err);
+            }
+        });
+    });
+});
+
+server.listen(3000, () => {
+    console.log('Server running on http://localhost:3000');
+});
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, Button, FlatList, StyleSheet } from 'react-native';
+import { WebSocket } from 'ws';
+
+const Chat = ({ userId, hostId }) => {
+    const [messages, setMessages] = useState([]);
+    const [message, setMessage] = useState('');
+    const [ws, setWs] = useState(null);
+
+    useEffect(() => {
+        const socket = new WebSocket(`ws://localhost:3000?userId=${userId}`);
+        setWs(socket);
+
+        socket.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            if (data.type === 'chat') {
+                setMessages(prevMessages => [...prevMessages, data.message]);
+            }
+        };
+
+        return () => {
+            socket.close();
+        };
+    }, [userId]);
+
+    const sendMessage = () => {
+        if (ws && message.trim()) {
+            const chatMessage = { type: 'chat', message: { userId, hostId, text: message, timestamp: new Date() } };
+            ws.send(JSON.stringify(chatMessage));
+            setMessages(prevMessages => [...prevMessages, chatMessage.message]);
+            setMessage('');
+        }
+    };
+
+    return (
+        <View style={styles.container}>
+            <FlatList
+                data={messages}
+                renderItem={({ item }) => (
+                    <View style={styles.message}>
+                        <Text>{item.text}</Text>
+                        <Text style={styles.timestamp}>{new Date(item.timestamp).toLocaleTimeString()}</Text>
+                    </View>
+                )}
+                keyExtractor={(item, index) => index.toString()}
+            />
+            <TextInput
+                style={styles.input}
+                value={message}
+                onChangeText={setMessage}
+                placeholder="Type a message"
+            />
+            <Button title="Send" onPress={sendMessage} />
+        </View>
+    );
+};
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        padding: 10
+    },
+    message: {
+        padding: 10,
+        borderBottomWidth: 1,
+        borderBottomColor: '#ccc'
+    },
+    timestamp: {
+        fontSize: 10,
+        color: '#999'
+    },
+    input: {
+        borderWidth: 1,
+        borderColor: '#ccc',
+        padding: 10,
+        marginBottom: 10
+    }
+});
+
+export default Chat;
 
 
 
