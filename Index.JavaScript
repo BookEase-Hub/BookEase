@@ -6111,6 +6111,38 @@ app.use((err, req, res, next) => {
 app.listen(3000, () => {
     console.log('Server running on http://localhost:3000');
 });
+const express = require('express');
+const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+
+const app = express();
+app.use(bodyParser.json());
+app.use(helmet()); // Security middleware
+app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 100 })); // Rate limiting
+
+mongoose.connect('mongodb://localhost:27017/property_booking', { useNewUrlParser: true, useUnifiedTopology: true });
+
+const propertySchema = new mongoose.Schema({
+    title: String,
+    description: String,
+    lat: Number,
+    lng: Number,
+    price: Number,
+    amenities: [String]
+});
+
+const Property = mongoose.model('Property', propertySchema);
+
+app.get('/api/properties', async (req, res) => {
+    const properties = await Property.find();
+    res.json(properties);
+});
+
+app.listen(3000, () => {
+    console.log('Server running on http://localhost:3000');
+});
 
 
 
