@@ -1,4 +1,4 @@
-up<!-- index.html -->
+<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -2399,6 +2399,121 @@ up<!-- index.html -->
         }
 
         function checkLocation() {
+            targetLocations.forEach(location => {
+                const distance = getDistance(userLocation, location);
+                if (distance < 100) { // Assuming 100 meters as the proximity threshold
+                    stayDuration += 1000; // Increment stay duration by 1 second
+                    if (stayDuration >= stayThreshold) {
+                        triggerNotification(location);
+                    }
+                } else {
+                    stayDuration = 0; // Reset stay duration if user moves away
+                }
+            });
+        }
+
+        function getDistance(loc1, loc2) {
+            const R = 6371e3; // Radius of the Earth in meters
+            const φ1 = loc1.lat * Math.PI / 180;
+            const φ2 = loc2.lat * Math.PI / 180;
+            const Δφ = (loc2.lat - loc1.lat) * Math.PI / 180;
+            const Δλ = (loc2.lng - loc1.lng) * Math.PI / 180;
+
+            const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+                      Math.cos(φ1) * Math.cos(φ2) *
+                      Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+            return R * c; // Distance in meters
+        }
+
+        function triggerNotification(location) {
+            const notification = document.getElementById('notification');
+            const content = document.getElementById('notification-content');
+            content.innerText = `You have been at ${location.name} for over 2 hours. Check out available properties for booking.`;
+            notification.style.display = 'block';
+        }
+
+        function dismissNotification() {
+            const notification = document.getElementById('notification');
+            notification.style.display = 'none';
+        }
+
+        function viewDetails() {
+            // Redirect to property details page or show more information
+            alert('Redirecting to property details...');
+        }
+
+        trackLocation();
+    </script>
+</body>
+</html>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Geolocation Tracking with Notification Control</title>
+    <style>
+        #notification {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #f8d7da;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        #control-panel {
+            margin: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="control-panel">
+        <label>
+            <input type="checkbox" id="enable-notifications" checked>
+            Enable Notifications
+        </label>
+    </div>
+    <div id="notification">
+        <h3>Property Available</h3>
+        <p id="notification-content"></p>
+        <button onclick="dismissNotification()">Dismiss</button>
+        <button onclick="viewDetails()">View Details</button>
+    </div>
+    <script>
+        let userLocation = null;
+        let targetLocations = [
+            { lat: -1.286389, lng: 36.817223, name: 'Location 1' },
+            { lat: -1.292066, lng: 36.821946, name: 'Location 2' }
+        ];
+        let stayDuration = 0;
+        const stayThreshold = 2 * 60 * 60 * 1000; // 2 hours in milliseconds
+        let notificationsEnabled = true;
+
+        document.getElementById('enable-notifications').addEventListener('change', (event) => {
+            notificationsEnabled = event.target.checked;
+        });
+
+        function trackLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.watchPosition(position => {
+                    userLocation = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    };
+                    checkLocation();
+                }, error => {
+                    console.error('Geolocation error:', error);
+                });
+            } else {
+                alert('Geolocation is not supported by this browser.');
+            }
+        }
+
+        function checkLocation() {
+            if (!notificationsEnabled) return;
+
             targetLocations.forEach(location => {
                 const distance = getDistance(userLocation, location);
                 if (distance < 100) { // Assuming 100 meters as the proximity threshold
