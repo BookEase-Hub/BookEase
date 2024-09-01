@@ -575,5 +575,31 @@ def recommend():
 
 if __name__ == '__main__':
     app.run(debug=True)
+from flask import Flask, request, jsonify
+from sklearn.neighbors import NearestNeighbors
+import pandas as pd
+
+app = Flask(__name__)
+
+# Sample data
+data = {
+    'user_id': [1, 2, 3, 4],
+    'property_id': [101, 102, 103, 104],
+    'rating': [5, 4, 3, 5]
+}
+df = pd.DataFrame(data)
+
+# Train the recommendation model
+model = NearestNeighbors(n_neighbors=2, algorithm='auto').fit(df[['user_id', 'property_id']])
+
+@app.route('/recommend', methods=['POST'])
+def recommend():
+    user_id = request.json['user_id']
+    distances, indices = model.kneighbors([[user_id, 0]])
+    recommendations = df.iloc[indices[0]]['property_id'].tolist()
+    return jsonify(recommendations)
+
+if __name__ == '__main__':
+    app.run(debug=True)
 
 
