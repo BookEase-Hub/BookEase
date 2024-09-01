@@ -7061,6 +7061,536 @@ const VirtualConcierge = () => {
 };
 
 export default VirtualConcierge;
+const express = require('express');
+const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
+
+const app = express();
+app.use(bodyParser.json());
+
+mongoose.connect('mongodb://localhost:27017/property_booking', { useNewUrlParser: true, useUnifiedTopology: true });
+
+const propertySchema = new mongoose.Schema({
+    title: String,
+    description: String,
+    lat: Number,
+    lng: Number,
+    price: Number,
+    amenities: [String],
+    hostId: String,
+    suitability: [String], // New field for suitability categories
+    maxGuests: Number, // New field for maximum guests
+    stayDurations: [String] // New field for stay durations
+});
+
+const Property = mongoose.model('Property', propertySchema);
+
+app.post('/api/properties', async (req, res) => {
+    const { title, description, lat, lng, price, amenities, hostId, suitability, maxGuests, stayDurations } = req.body;
+    const property = new Property({ title, description, lat, lng, price, amenities, hostId, suitability, maxGuests, stayDurations });
+    await property.save();
+    res.json({ success: true, property });
+});
+
+app.listen(3000, () => {
+    console.log('Server running on http://localhost:3000');
+});
+import React, { useState } from 'react';
+import axios from 'axios';
+
+const PropertyListingForm = () => {
+    const [title, setTitle] = useState('');
+    const [description, setDescription] = useState('');
+    const [lat, setLat] = useState('');
+    const [lng, setLng] = useState('');
+    const [price, setPrice] = useState('');
+    const [amenities, setAmenities] = useState([]);
+    const [suitability, setSuitability] = useState([]);
+    const [maxGuests, setMaxGuests] = useState('');
+    const [stayDurations, setStayDurations] = useState([]);
+
+    const handleSubmit = () => {
+        const propertyData = { title, description, lat, lng, price, amenities, suitability, maxGuests, stayDurations };
+        axios.post('http://localhost:3000/api/properties', propertyData)
+            .then(response => {
+                console.log('Property listed:', response.data);
+            })
+            .catch(error => console.error('Error listing property:', error));
+    };
+
+    return (
+        <div>
+            <h3>List Your Property</h3>
+            <input type="text" value={title} onChange={e => setTitle(e.target.value)} placeholder="Title" />
+            <textarea value={description} onChange={e => setDescription(e.target.value)} placeholder="Description"></textarea>
+            <input type="text" value={lat} onChange={e => setLat(e.target.value)} placeholder="Latitude" />
+            <input type="text" value={lng} onChange={e => setLng(e.target.value)} placeholder="Longitude" />
+            <input type="number" value={price} onChange={e => setPrice(e.target.value)} placeholder="Price" />
+            <input type="number" value={maxGuests} onChange={e => setMaxGuests(e.target.value)} placeholder="Max Guests" />
+            <select multiple onChange={e => setAmenities([...e.target.selectedOptions].map(option => option.value))}>
+                <option value="wifi">WiFi</option>
+                <option value="parking">Parking</option>
+                <option value="pool">Pool</option>
+                <option value="gym">Gym</option>
+            </select>
+            <select multiple onChange={e => setSuitability([...e.target.selectedOptions].map(option => option.value))}>
+                <option value="solo">Solo Travelers</option>
+                <option value="couples">Couples</option>
+                <option value="business">Business Travelers</option>
+                <option value="families">Families</option>
+            </select>
+            <select multiple onChange={e => setStayDurations([...e.target.selectedOptions].map(option => option.value))}>
+                <option value="1_day">1 Day</option>
+                <option value="3_days">3 Days</option>
+                <option value="1_week">1 Week</option>
+                <option value="1_month">1 Month</option>
+                <option value="semi_yearly">Semi-Yearly</option>
+                <option value="yearly">Yearly</option>
+            </select>
+            <button onClick={handleSubmit}>Submit</button>
+        </div>
+    );
+};
+
+export default PropertyListingForm;
+const express = require('express');
+const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
+const multer = require('multer');
+const path = require('path');
+
+const app = express();
+app.use(bodyParser.json());
+
+mongoose.connect('mongodb://localhost:27017/property_booking', { useNewUrlParser: true, useUnifiedTopology: true });
+
+const reviewSchema = new mongoose.Schema({
+    propertyId: String,
+    userId: String,
+    rating: Number,
+    comment: String,
+    photos: [String],
+    videos: [String]
+});
+
+const Review = mongoose.model('Review', reviewSchema);
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'uploads/');
+    },
+    filename: (req, file, cb) => {
+        cb(null, `${Date.now()}-${file.originalname}`);
+    }
+});
+
+const upload = multer({ storage });
+
+app.post('/api/reviews', upload.fields([{ name: 'photos', maxCount: 5 }, { name: 'videos', maxCount: 2 }]), async (req, res) => {
+    const { propertyId, userId, rating, comment } = req.body;
+    const photos = req.files['photos'] ? req.files['photos'].map(file => file.path) : [];
+    const videos = req.files['videos'] ? req.files['videos'].map(file => file.path) : [];
+    const review = new Review({ propertyId, userId, rating, comment, photos, videos });
+    await review.save();
+    res.json({ success: true, review });
+});
+
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+app.listen(3000, () => {
+    console.log('Server running on http://localhost:3000');
+});
+import React, { useState } from 'react';
+import axios from 'axios';
+
+const SubmitReview = ({ propertyId, userId }) => {
+    const [rating, setRating] = useState(0);
+    const [comment, setComment] = useState('');
+    const [photos, setPhotos] = useState([]);
+    const [videos, setVideos] = useState([]);
+
+    const handleFileChange = (e, setFiles) => {
+        setFiles([...e.target.files]);
+    };
+
+    const submitReview = () => {
+        const formData = new FormData();
+        formData.append('propertyId', propertyId);
+        formData.append('userId', userId);
+        formData.append('rating', rating);
+        formData.append('comment', comment);
+        photos.forEach(photo => formData.append('photos', photo));
+        videos.forEach(video => formData.append('videos', video));
+
+        axios.post('http://localhost:3000/api/reviews', formData)
+            .then(response => {
+                console.log('Review submitted:', response.data);
+            })
+            .catch(error => console.error('Error submitting review:', error));
+    };
+
+    return (
+        <div>
+            <h3>Submit a Review</h3>
+            <input type="number" value={rating} onChange={e => setRating(e.target.value)} placeholder="Rating" />
+            <textarea value={comment} onChange={e => setComment(e.target.value)} placeholder="Comment"></textarea>
+            <input type="file" multiple onChange={e => handleFileChange(e, setPhotos)} accept="image/*" />
+            <input type="file" multiple onChange={e => handleFileChange(e, setVideos)} accept="video/*" />
+            <button onClick={submitReview}>Submit</button>
+        </div>
+    );
+};
+
+export default SubmitReview;
+const express = require('express');
+const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
+
+const app = express();
+app.use(bodyParser.json());
+
+mongoose.connect('mongodb://localhost:27017/property_booking', { useNewUrlParser: true, useUnifiedTopology: true });
+
+const propertySchema = new mongoose.Schema({
+    title: String,
+    description: String,
+    lat: Number,
+    lng: Number,
+    price: Number,
+    amenities: [String],
+    hostId: String,
+    suitability: [String],
+    maxGuests: Number,
+    stayDurations: [String]
+});
+
+const Property = mongoose.model('Property', propertySchema);
+
+app.get('/api/properties', async (req, res) => {
+    const { suitability, guestCount, stayDuration, amenities } = req.query;
+    const query = {};
+
+    if (suitability) query.suitability = suitability;
+    if (guestCount) query.maxGuests = { $gte: guestCount };
+    if (stayDuration) query.stayDurations = stayDuration;
+    if (amenities) query.amenities = { $all: amenities.split(',') };
+
+    const properties = await Property.find(query);
+    res.json(properties);
+});
+
+app.listen(3000, () => {
+    console.log('Server running on http://localhost:3000');
+});
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+
+const PropertyFilters = () => {
+    const [suitability, setSuitability] = useState('');
+    const [guestCount, setGuestCount] = useState('');
+    const [stayDuration, setStayDuration] = useState('');
+    const [amenities, setAmenities] = useState([]);
+    const [properties, setProperties] = useState([]);
+
+    useEffect(() => {
+        const fetchProperties = async () => {
+            const response = await axios.get('http://localhost:3000/api/properties', {
+                params: { suitability, guestCount, stayDuration, amenities: amenities.join(',') }
+            });
+            setProperties(response.data);
+        };
+        fetchProperties();
+    }, [suitability, guestCount, stayDuration, amenities]);
+
+    return (
+        <div>
+            <h3>Filter Properties</h3>
+            <select onChange={e => setSuitability(e.target.value)}>
+                <option value="">All</option>
+                <option value="solo">Solo Travelers</option>
+                <option value="couples">Couples</option>
+                <option value="business">Business Travelers</option>
+                <option value="families">Families</option>
+            </select>
+            <input type="number" value={guestCount} onChange={e => setGuestCount(e.target.value)} placeholder="Guest Count" />
+            <select onChange={e => setStayDuration(e.target.value)}>
+                <option value="">All</option>
+                <option value="1_day">1 Day</option>
+                <option value="3_days">3 Days</option>
+                <option value="1_week">1 Week</option>
+                <option value="1_month">1 Month</option>
+                <option value="semi_yearly">Semi-Yearly</option>
+                <option value="yearly">Yearly</option>
+            </select>
+            <select multiple onChange={e => setAmenities([...e.target.selectedOptions].map(option => option.value))}>
+                <option value="wifi">WiFi</option>
+                <option value="parking">Parking</option>
+                <option value="pool">Pool</option>
+                <option value="gym">Gym</option>
+            </select>
+            <ul>
+                {properties.map(property => (
+                    <li key={property._id}>{property.title}</li>
+                ))}
+            </ul>
+        </div>
+    );
+};
+
+export default PropertyFilters;
+const express = require('express');
+const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
+
+const app = express();
+app.use(bodyParser.json());
+
+mongoose.connect('mongodb://localhost:27017/property_booking', { useNewUrlParser: true, useUnifiedTopology: true });
+
+const userSchema = new mongoose.Schema({
+    username: String,
+    email: String,
+    searchHistory: [String]
+});
+
+const propertySchema = new mongoose.Schema({
+    title: String,
+    description: String,
+    lat: Number,
+    lng: Number,
+    price: Number,
+    amenities: [String],
+    hostId: String,
+    suitability: [String],
+    maxGuests: Number,
+    stayDurations: [String]
+});
+
+const User = mongoose.model('User', userSchema);
+const Property = mongoose.model('Property', propertySchema);
+
+app.post('/api/recommendations', async (req, res) => {
+    const { userId } = req.body;
+    const user = await User.findById(userId);
+    const recommendations = await Property.find({ title: { $in: user.searchHistory } });
+    res.json(recommendations);
+});
+
+app.listen(3000, () => {
+    console.log('Server running on http://localhost:3000');
+});
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+
+const Recommendations = ({ userId }) => {
+    const [recommendations, setRecommendations] = useState([]);
+
+    useEffect(() => {
+        const fetchRecommendations = async () => {
+            const response = await axios.post('http://localhost:3000/api/recommendations', { userId });
+            setRecommendations(response.data);
+        };
+        fetchRecommendations();
+    }, [userId]);
+
+    return (
+        <div>
+            <h3>Recommended Properties</h3>
+            <ul>
+                {recommendations.map(property => (
+                    <li key={property._id}>{property.title}</li>
+                ))}
+            </ul>
+        </div>
+    );
+};
+
+export default Recommendations;
+const express = require('express');
+const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
+const stripe = require('stripe')('your-stripe-secret-key');
+
+const app = express();
+app.use(bodyParser.json());
+
+mongoose.connect('mongodb://localhost:27017/property_booking', { useNewUrlParser: true, useUnifiedTopology: true });
+
+const bookingSchema = new mongoose.Schema({
+    userId: String,
+    propertyId: String,
+    status: String,
+    createdAt: { type: Date, default: Date.now }
+});
+
+const Booking = mongoose.model('Booking', bookingSchema);
+
+app.post('/api/book', async (req, res) => {
+    const { userId, propertyId, token } = req.body;
+    const charge = await stripe.charges.create({
+        amount: 5000, // Amount in cents
+        currency: 'usd',
+        source: token,
+        description: 'Property booking charge'
+    });
+
+    if (charge.status === 'succeeded') {
+        const booking = new Booking({ userId, propertyId, status: 'Confirmed' });
+        await booking.save();
+        res.json({ success: true, booking });
+    } else {
+        res.status(500).json({ success: false, message: 'Payment failed' });
+    }
+});
+
+app.listen(3000, () => {
+    console.log('Server running on http://localhost:3000');
+});
+import React, { useState } from 'react';
+import axios from 'axios';
+import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
+
+const BookingForm = ({ userId, propertyId }) => {
+    const stripe = useStripe();
+    const elements = useElements();
+    const [error, setError] = useState(null);
+    const [success, setSuccess] = useState(false);
+
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+        const cardElement = elements.getElement(CardElement);
+        const { token, error } = await stripe.createToken(cardElement);
+
+        if (error) {
+            setError(error.message);
+        } else {
+            const response = await axios.post('http://localhost:3000/api/book', {
+                userId,
+                propertyId,
+                token: token.id
+            });
+
+            if (response.data.success) {
+                setSuccess(true);
+            } else {
+                setError('Payment failed');
+            }
+        }
+    };
+
+    return (
+        <div>
+            <h3>Book Property</h3>
+            <form onSubmit={handleSubmit}>
+                <CardElement />
+                <button type="submit" disabled={!stripe}>Pay</button>
+            </form>
+            {error && <div>{error}</div>}
+            {success && <div>Booking confirmed!</div>}
+        </div>
+    );
+};
+
+export default BookingForm;
+const express = require('express');
+const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
+const http = require('http');
+const WebSocket = require('ws');
+
+const app = express();
+const server = http.createServer(app);
+const wss = new WebSocket.Server({ server });
+
+app.use(bodyParser.json());
+
+mongoose.connect('mongodb://localhost:27017/property_booking', { useNewUrlParser: true, useUnifiedTopology: true });
+
+const messageSchema = new mongoose.Schema({
+    senderId: String,
+    receiverId: String,
+    propertyId: String,
+    content: String,
+    timestamp: { type: Date, default: Date.now }
+});
+
+const Message = mongoose.model('Message', messageSchema);
+
+wss.on('connection', (ws, req) => {
+    ws.on('message', async (message) => {
+        const parsedMessage = JSON.parse(message);
+        const { senderId, receiverId, propertyId, content } = parsedMessage;
+
+        const newMessage = new Message({ senderId, receiverId, propertyId, content });
+        await newMessage.save();
+
+        wss.clients.forEach(client => {
+            if (client.readyState === WebSocket.OPEN && client !== ws) {
+                client.send(JSON.stringify(newMessage));
+            }
+        });
+    });
+});
+
+app.get('/api/messages/:propertyId', async (req, res) => {
+    const { propertyId } = req.params;
+    const messages = await Message.find({ propertyId }).sort({ timestamp: 1 });
+    res.json(messages);
+});
+
+server.listen(3000, () => {
+    console.log('Server running on http://localhost:3000');
+});
+import React, { useState, useEffect, useRef } from 'react';
+import axios from 'axios';
+import { WebSocket } from 'ws';
+
+const Messaging = ({ userId, propertyId }) => {
+    const [messages, setMessages] = useState([]);
+    const [input, setInput] = useState('');
+    const ws = useRef(null);
+
+    useEffect(() => {
+        const fetchMessages = async () => {
+            const response = await axios.get(`http://localhost:3000/api/messages/${propertyId}`);
+            setMessages(response.data);
+        };
+        fetchMessages();
+
+        ws.current = new WebSocket('ws://localhost:3000');
+        ws.current.onmessage = (event) => {
+            const newMessage = JSON.parse(event.data);
+            setMessages(prevMessages => [...prevMessages, newMessage]);
+        };
+
+        return () => {
+            ws.current.close();
+        };
+    }, [propertyId]);
+
+    const sendMessage = () => {
+        const message = { senderId: userId, receiverId: 'hostId', propertyId, content: input };
+        ws.current.send(JSON.stringify(message));
+        setInput('');
+    };
+
+    return (
+        <div>
+            <h3>Messages</h3>
+            <div>
+                {messages.map((msg, index) => (
+                    <div key={index} style={{ textAlign: msg.senderId === userId ? 'right' : 'left' }}>
+                        <p>{msg.content}</p>
+                    </div>
+                ))}
+            </div>
+            <input value={input} onChange={e => setInput(e.target.value)} placeholder="Type a message" />
+            <button onClick={sendMessage}>Send</button>
+        </div>
+    );
+};
+
+export default Messaging;
 
 
 
