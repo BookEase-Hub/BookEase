@@ -601,5 +601,263 @@ def recommend():
 
 if __name__ == '__main__':
     app.run(debug=True)
+class DynamicPricing:
+    def __init__(self, base_price, demand_factor, seasonality_factor, property_factor):
+        self.base_price = base_price
+        self.demand_factor = demand_factor
+        self.seasonality_factor = seasonality_factor
+        self.property_factor = property_factor
 
+    def calculate_price(self):
+        return self.base_price * self.demand_factor * self.seasonality_factor * self.property_factor
+
+# Example usage
+pricing = DynamicPricing(base_price=100, demand_factor=1.2, seasonality_factor=1.1, property_factor=1.05)
+final_price = pricing.calculate_price()
+print(f"Final Price: {final_price}")
+class Availability:
+    def __init__(self, bookings):
+        self.bookings = bookings
+
+    def is_available(self, start_date, end_date):
+        for booking in self.bookings:
+            if start_date < booking['end_date'] and end_date > booking['start_date']:
+                return False
+        return True
+
+# Example usage
+bookings = [{'start_date': '2024-09-01', 'end_date': '2024-09-10'}, {'start_date': '2024-09-15', 'end_date': '2024-09-20'}]
+availability = Availability(bookings)
+print(availability.is_available('2024-09-11', '2024-09-14'))  # Should return True
+class Property:
+    def __init__(self, id, amenities, price, location):
+        self.id = id
+        self.amenities = amenities
+        self.price = price
+        self.location = location
+
+class SearchService:
+    def __init__(self, properties):
+        self.properties = properties
+
+    def search(self, filters):
+        results = self.properties
+        if 'amenities' in filters:
+            results = [p for p in results if all(a in p.amenities for a in filters['amenities'])]
+        if 'price_range' in filters:
+            results = [p for p in results if filters['price_range'][0] <= p.price <= filters['price_range'][1]]
+        if 'location' in filters:
+            results = [p for p in results if filters['location'] in p.location]
+        return results
+
+# Example usage
+properties = [
+    Property(id=1, amenities=['wifi', 'pool'], price=150, location='Nairobi'),
+    Property(id=2, amenities=['wifi'], price=100, location='Mombasa')
+]
+search_service = SearchService(properties)
+filters = {'amenities': ['wifi'], 'price_range': [50, 200], 'location': 'Nairobi'}
+results = search_service.search(filters)
+for property in results:
+    print(f"Property ID: {property.id}")class User:
+    def __init__(self, id, name, email):
+        self.id = id
+        self.name = name
+        self.email = email
+
+class Host(User):
+    def __init__(self, id, name, email, listings, booking_history, communication_preferences):
+        super().__init__(id, name, email)
+        self.listings = listings
+        self.booking_history = booking_history
+        self.communication_preferences = communication_preferences
+
+# Example usage
+host = Host(
+    id=1,
+    name='John Doe',
+    email='john@example.com',
+    listings=['Property1', 'Property2'],
+    booking_history=['Booking1', 'Booking2'],
+    communication_preferences={'email': True, 'sms': False}
+)
+print(f"Host Name: {host.name}, Listings: {host.listings}")
+class DynamicPricing:
+    def __init__(self, base_price, demand_factor, seasonality_factor, property_factor, competitor_prices):
+        self.base_price = base_price
+        self.demand_factor = demand_factor
+        self.seasonality_factor = seasonality_factor
+        self.property_factor = property_factor
+        self.competitor_prices = competitor_prices
+
+    def calculate_price(self):
+        competitor_adjustment = sum(self.competitor_prices) / len(self.competitor_prices)
+        return self.base_price * self.demand_factor * self.seasonality_factor * self.property_factor * competitor_adjustment
+
+# Example usage
+pricing = DynamicPricing(base_price=100, demand_factor=1.2, seasonality_factor=1.1, property_factor=1.05, competitor_prices=[95, 105, 110])
+final_price = pricing.calculate_price()
+print(f"Final Price: {final_price}")
+from datetime import datetime
+
+class Availability:
+    def __init__(self, bookings):
+        self.bookings = bookings
+
+    def is_available(self, start_date, end_date):
+        start_date = datetime.strptime(start_date, '%Y-%m-%d')
+        end_date = datetime.strptime(end_date, '%Y-%m-%d')
+        for booking in self.bookings:
+            booking_start = datetime.strptime(booking['start_date'], '%Y-%m-%d')
+            booking_end = datetime.strptime(booking['end_date'], '%Y-%m-%d')
+            if start_date < booking_end and end_date > booking_start:
+                return False
+        return True
+
+# Example usage
+bookings = [{'start_date': '2024-09-01', 'end_date': '2024-09-10'}, {'start_date': '2024-09-15', 'end_date': '2024-09-20'}]
+availability = Availability(bookings)
+print(availability.is_available('2024-09-11', '2024-09-14'))  # Should return True
+class Property:
+    def __init__(self, id, amenities, price, location, bedrooms, bathrooms, property_type):
+        self.id = id
+        self.amenities = amenities
+        self.price = price
+        self.location = location
+        self.bedrooms = bedrooms
+        self.bathrooms = bathrooms
+        self.property_type = property_type
+
+class SearchService:
+    def __init__(self, properties):
+        self.properties = properties
+
+    def search(self, filters):
+        results = self.properties
+        if 'amenities' in filters:
+            results = [p for p in results if all(a in p.amenities for a in filters['amenities'])]
+        if 'price_range' in filters:
+            results = [p for p in results if filters['price_range'][0] <= p.price <= filters['price_range'][1]]
+        if 'location' in filters:
+            results = [p for p in results if filters['location'] in p.location]
+        if 'bedrooms' in filters:
+            results = [p for p in results if p.bedrooms >= filters['bedrooms']]
+        if 'bathrooms' in filters:
+            results = [p for p in results if p.bathrooms >= filters['bathrooms']]
+        if 'property_type' in filters:
+            results = [p for p in results if p.property_type == filters['property_type']]
+        return results
+
+# Example usage
+properties = [
+    Property(id=1, amenities=['wifi', 'pool'], price=150, location='Nairobi', bedrooms=3, bathrooms=2, property_type='apartment'),
+    Property(id=2, amenities=['wifi'], price=100, location='Mombasa', bedrooms=2, bathrooms=1, property_type='house')
+]
+search_service = SearchService(properties)
+filters = {'amenities': ['wifi'], 'price_range': [50, 200], 'location': 'Nairobi', 'bedrooms': 2, 'property_type': 'apartment'}
+results = search_service.search(filters)
+for property in results:
+    print(f"Property ID: {property.id}")
+class User:
+    def __init__(self, id, name, email):
+        self.id = id
+        self.name = name
+        self.email = email
+
+class Host(User):
+    def __init__(self, id, name, email, listings, booking_history, communication_preferences, rating, response_time):
+        super().__init__(id, name, email)
+        self.listings = listings
+        self.booking_history = booking_history
+        self.communication_preferences = communication_preferences
+        self.rating = rating
+        self.response_time = response_time
+
+    def update_rating(self, new_rating):
+        self.rating = (self.rating + new_rating) / 2
+
+    def update_response_time(self, new_response_time):
+        self.response_time = new_response_time
+
+# Example usage
+host = Host(
+    id=1,
+    name='John Doe',
+    email='john@example.com',
+    listings=['Property1', 'Property2'],
+    booking_history=['Booking1', 'Booking2'],
+    communication_preferences={'email': True, 'sms': False},
+    rating=4.5,
+    response_time='2 hours'
+)
+host.update_rating(5.0)
+host.update_response_time('1 hour')
+print(f"Host Name: {host.name}, Listings: {host.listings}, Rating: {host.rating}, Response Time: {host.response_time}")
+class DynamicPricing:
+    def __init__(self, base_price, demand_factor, seasonality_factor, property_factor, competitor_prices):
+        self.base_price = base_price
+        self.demand_factor = demand_factor
+        self.seasonality_factor = seasonality_factor
+        self.property_factor = property_factor
+        self.competitor_prices = competitor_prices
+
+    def calculate_price(self):
+        competitor_adjustment = sum(self.competitor_prices) / len(self.competitor_prices)
+        return self.base_price * self.demand_factor * self.seasonality_factor * self.property_factor * competitor_adjustment
+
+# Example usage
+pricing = DynamicPricing(base_price=100, demand_factor=1.2, seasonality_factor=1.1, property_factor=1.05, competitor_prices=[95, 105, 110])
+final_price = pricing.calculate_price()
+print(f"Final Price: {final_price}")
+from datetime import datetime
+
+class Availability:
+    def __init__(self, bookings):
+        self.bookings = bookings
+
+    def is_available(self, start_date, end_date):
+        start_date = datetime.strptime(start_date, '%Y-%m-%d')
+        end_date = datetime.strptime(end_date, '%Y-%m-%d')
+        for booking in self.bookings:
+            booking_start = datetime.strptime(booking['start_date'], '%Y-%m-%d')
+            booking_end = datetime.strptime(booking['end_date'], '%Y-%m-%d')
+            if start_date < booking_end and end_date > booking_start:
+                return False
+        return True
+
+# Example usage
+bookings = [{'start_date': '2024-09-01', 'end_date': '2024-09-10'}, {'start_date': '2024-09-15', 'end_date': '2024-09-20'}]
+availability = Availability(bookings)
+print(availability.is_available('2024-09-11', '2024-09-14'))  # Should return True
+class PropertyBooking:
+    def __init__(self, properties):
+        self.properties = properties
+
+    def get_dynamic_price(self, property_id, demand_factor, seasonality_factor, competitor_prices):
+        property = self.properties[property_id]
+        pricing = DynamicPricing(
+            base_price=property['base_price'],
+            demand_factor=demand_factor,
+            seasonality_factor=seasonality_factor,
+            property_factor=property['property_factor'],
+            competitor_prices=competitor_prices
+        )
+        return pricing.calculate_price()
+
+    def check_availability(self, property_id, start_date, end_date):
+        property = self.properties[property_id]
+        availability = Availability(property['bookings'])
+        return availability.is_available(start_date, end_date)
+
+# Example usage
+properties = {
+    1: {
+        'base_price': 100,
+        'property_factor': 1.05,
+        'bookings': [{'start_date': '2024-09-01', 'end_date': '2024-09-10'}, {'start_date': '2024-09-15', 'end_date': '2024-09-20'}]
+    }
+}
+booking_system = PropertyBooking(properties)
+print(booking_system.get_dynamic_price(1, 1.2, 1.1, [95, 105, 110]))  # Calculate dynamic price
+print(booking_system.check_availability(1, '2024-09-11', '2024-09-14'))  # Check availability
 
