@@ -6634,6 +6634,433 @@ const styles = StyleSheet.create({
 });
 
 export default Notifications;
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+
+const Recommendations = ({ userId }) => {
+    const [recommendations, setRecommendations] = useState([]);
+
+    useEffect(() => {
+        axios.post('http://localhost:5000/recommend', { user_id: userId })
+            .then(response => setRecommendations(response.data))
+            .catch(error => console.error('Error fetching recommendations:', error));
+    }, [userId]);
+
+    return (
+        <div>
+            <h3>Recommended Properties</h3>
+            <ul>
+                {recommendations.map(propertyId => (
+                    <li key={propertyId}>Property ID: {propertyId}</li>
+                ))}
+            </ul>
+        </div>
+    );
+};
+
+export default Recommendations;
+const express = require('express');
+const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
+
+const app = express();
+app.use(bodyParser.json());
+
+mongoose.connect('mongodb://localhost:27017/property_booking', { useNewUrlParser: true, useUnifiedTopology: true });
+
+const propertySchema = new mongoose.Schema({
+    title: String,
+    description: String,
+    category: String,
+    lat: Number,
+    lng: Number,
+    price: Number,
+    amenities: [String],
+    hostId: String
+});
+
+const Property = mongoose.model('Property', propertySchema);
+
+app.get('/api/properties', async (req, res) => {
+    const { category } = req.query;
+    const properties = await Property.find(category ? { category } : {});
+    res.json(properties);
+});
+
+app.listen(3000, () => {
+    console.log('Server running on http://localhost:3000');
+});
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+
+const PropertyCategories = () => {
+    const [category, setCategory] = useState('');
+    const [properties, setProperties] = useState([]);
+
+    useEffect(() => {
+        axios.get('http://localhost:3000/api/properties', { params: { category } })
+            .then(response => setProperties(response.data))
+            .catch(error => console.error('Error fetching properties:', error));
+    }, [category]);
+
+    return (
+        <div>
+            <h3>Property Categories</h3>
+            <select onChange={e => setCategory(e.target.value)}>
+                <option value="">All</option>
+                <option value="luxury">Luxury</option>
+                <option value="eco">Eco-Friendly</option>
+                <option value="digital_nomad">Digital Nomad</option>
+                <option value="pet_friendly">Pet-Friendly</option>
+            </select>
+            <ul>
+                {properties.map(property => (
+                    <li key={property._id}>{property.title}</li>
+                ))}
+            </ul>
+        </div>
+    );
+};
+
+export default PropertyCategories;
+const express = require('express');
+const bodyParser = require('body-parser');
+const { NlpManager } = require('node-nlp');
+
+const app = express();
+app.use(bodyParser.json());
+
+const manager = new NlpManager({ languages: ['en'] });
+// Train the chatbot with some basic intents
+manager.addDocument('en', 'hello', 'greetings.hello');
+manager.addDocument('en', 'book a property', 'booking.book');
+manager.addAnswer('en', 'greetings.hello', 'Hello! How can I assist you today?');
+manager.addAnswer('en', 'booking.book', 'Sure, I can help you book a property. Please provide the details.');
+
+manager.train().then(() => {
+    manager.save();
+});
+
+app.post('/api/chat', async (req, res) => {
+    const { message } = req.body;
+    const response = await manager.process('en', message);
+    res.json({ reply: response.answer });
+});
+
+app.listen(3000, () => {
+    console.log('Server running on http://localhost:3000');
+});
+import React, { useState } from 'react';
+import axios from 'axios';
+
+const ChatSupport = () => {
+    const [messages, setMessages] = useState([]);
+    const [input, setInput] = useState('');
+
+    const sendMessage = () => {
+        axios.post('http://localhost:3000/api/chat', { message: input })
+            .then(response => {
+                setMessages([...messages, { text: input, user: true }, { text: response.data.reply, user: false }]);
+                setInput('');
+            })
+            .catch(error => console.error('Error sending message:', error));
+    };
+
+    return (
+        <div>
+            <h3>Chat Support</h3>
+            <div>
+                {messages.map((msg, index) => (
+                    <div key={index} style={{ textAlign: msg.user ? 'right' : 'left' }}>
+                        <p>{msg.text}</p>
+                    </div>
+                ))}
+            </div>
+            <input value={input} onChange={e => setInput(e.target.value)} />
+            <button onClick={sendMessage}>Send</button>
+        </div>
+    );
+};
+
+export default ChatSupport;
+const express = require('express');
+const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
+
+const app = express();
+app.use(bodyParser.json());
+
+mongoose.connect('mongodb://localhost:27017/property_booking', { useNewUrlParser: true, useUnifiedTopology: true });
+
+const propertySchema = new mongoose.Schema({
+    title: String,
+    description: String,
+    exclusive: Boolean,
+    lat: Number,
+    lng: Number,
+    price: Number,
+    amenities: [String],
+    hostId: String
+});
+
+const Property = mongoose.model('Property', propertySchema);
+
+app.get('/api/exclusive-properties', async (req, res) => {
+    const properties = await Property.find({ exclusive: true });
+    res.json(properties);
+});
+
+app.listen(3000, () => {
+    console.log('Server running on http://localhost:3000');
+});
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+
+const ExclusiveProperties = () => {
+    const [properties, setProperties] = useState([]);
+
+    useEffect(() => {
+        axios.get('http://localhost:3000/api/exclusive-properties')
+            .then(response => setProperties(response.data))
+            .catch(error => console.error('Error fetching properties:', error));
+    }, []);
+
+    return (
+        <div>
+            <h3>Exclusive Properties</h3>
+            <ul>
+                {properties.map(property => (
+                    <li key={property._id}>{property.title}</li>
+                ))}
+            </ul>
+        </div>
+    );
+};
+
+export default ExclusiveProperties;
+const express = require('express');
+const bodyParser = require('body-parser');
+const { NlpManager } = require('node-nlp');
+
+const app = express();
+app.use(bodyParser.json());
+
+const manager = new NlpManager({ languages: ['en'] });
+// Train the chatbot with some basic intents
+manager.addDocument('en', 'hello', 'greetings.hello');
+manager.addDocument('en', 'book a property', 'booking.book');
+manager.addAnswer('en', 'greetings.hello', 'Hello! How can I assist you today?');
+manager.addAnswer('en', 'booking.book', 'Sure, I can help you book a property. Please provide the details.');
+
+manager.train().then(() => {
+    manager.save();
+});
+
+app.post('/api/chat', async (req, res) => {
+    const { message } = req.body;
+    const response = await manager.process('en', message);
+    res.json({ reply: response.answer });
+});
+
+app.listen(3000, () => {
+    console.log('Server running on http://localhost:3000');
+});
+import React, { useState } from 'react';
+import axios from 'axios';
+
+const ChatSupport = () => {
+    const [messages, setMessages] = useState([]);
+    const [input, setInput] = useState('');
+
+    const sendMessage = () => {
+        axios.post('http://localhost:3000/api/chat', { message: input })
+            .then(response => {
+                setMessages([...messages, { text: input, user: true }, { text: response.data.reply, user: false }]);
+                setInput('');
+            })
+            .catch(error => console.error('Error sending message:', error));
+    };
+
+    return (
+        <div>
+            <h3>Chat Support</h3>
+            <div>
+                {messages.map((msg, index) => (
+                    <div key={index} style={{ textAlign: msg.user ? 'right' : 'left' }}>
+                        <p>{msg.text}</p>
+                    </div>
+                ))}
+            </div>
+            <input value={input} onChange={e => setInput(e.target.value)} />
+            <button onClick={sendMessage}>Send</button>
+        </div>
+    );
+};
+
+export default ChatSupport;
+import React from 'react';
+import { FacebookShareButton, TwitterShareButton, WhatsappShareButton, FacebookIcon, TwitterIcon, WhatsappIcon } from 'react-share';
+
+const SocialMediaShare = ({ url, title }) => {
+    return (
+        <div>
+            <h3>Share Your Booking</h3>
+            <FacebookShareButton url={url} quote={title}>
+                <FacebookIcon size={32} round />
+            </FacebookShareButton>
+            <TwitterShareButton url={url} title={title}>
+                <TwitterIcon size={32} round />
+            </TwitterShareButton>
+            <WhatsappShareButton url={url} title={title}>
+                <WhatsappIcon size={32} round />
+            </WhatsappShareButton>
+        </div>
+    );
+};
+
+export default SocialMediaShare;
+const express = require('express');
+const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
+const multer = require('multer');
+const path = require('path');
+
+const app = express();
+app.use(bodyParser.json());
+
+mongoose.connect('mongodb://localhost:27017/property_booking', { useNewUrlParser: true, useUnifiedTopology: true });
+
+const reviewSchema = new mongoose.Schema({
+    propertyId: String,
+    userId: String,
+    rating: Number,
+    comment: String,
+    photos: [String],
+    videos: [String]
+});
+
+const Review = mongoose.model('Review', reviewSchema);
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'uploads/');
+    },
+    filename: (req, file, cb) => {
+        cb(null, `${Date.now()}-${file.originalname}`);
+    }
+});
+
+const upload = multer({ storage });
+
+app.post('/api/reviews', upload.fields([{ name: 'photos', maxCount: 5 }, { name: 'videos', maxCount: 2 }]), async (req, res) => {
+    const { propertyId, userId, rating, comment } = req.body;
+    const photos = req.files['photos'] ? req.files['photos'].map(file => file.path) : [];
+    const videos = req.files['videos'] ? req.files['videos'].map(file => file.path) : [];
+    const review = new Review({ propertyId, userId, rating, comment, photos, videos });
+    await review.save();
+    res.json({ success: true, review });
+});
+
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+app.listen(3000, () => {
+    console.log('Server running on http://localhost:3000');
+});
+import React, { useState } from 'react';
+import axios from 'axios';
+
+const SubmitReview = ({ propertyId, userId }) => {
+    const [rating, setRating] = useState(0);
+    const [comment, setComment] = useState('');
+    const [photos, setPhotos] = useState([]);
+    const [videos, setVideos] = useState([]);
+
+    const handleFileChange = (e, setFiles) => {
+        setFiles([...e.target.files]);
+    };
+
+    const submitReview = () => {
+        const formData = new FormData();
+        formData.append('propertyId', propertyId);
+        formData.append('userId', userId);
+        formData.append('rating', rating);
+        formData.append('comment', comment);
+        photos.forEach(photo => formData.append('photos', photo));
+        videos.forEach(video => formData.append('videos', video));
+
+        axios.post('http://localhost:3000/api/reviews', formData)
+            .then(response => {
+                console.log('Review submitted:', response.data);
+            })
+            .catch(error => console.error('Error submitting review:', error));
+    };
+
+    return (
+        <div>
+            <h3>Submit a Review</h3>
+            <input type="number" value={rating} onChange={e => setRating(e.target.value)} placeholder="Rating" />
+            <textarea value={comment} onChange={e => setComment(e.target.value)} placeholder="Comment"></textarea>
+            <input type="file" multiple onChange={e => handleFileChange(e, setPhotos)} accept="image/*" />
+            <input type="file" multiple onChange={e => handleFileChange(e, setVideos)} accept="video/*" />
+            <button onClick={submitReview}>Submit</button>
+        </div>
+    );
+};
+
+export default SubmitReview;
+const express = require('express');
+const bodyParser = require('body-parser');
+
+const app = express();
+app.use(bodyParser.json());
+
+const recommendations = {
+    attractions: ['Museum', 'Park', 'Historic Site'],
+    dining: ['Restaurant', 'Cafe', 'Bar'],
+    transportation: ['Taxi', 'Bus', 'Bike Rental'],
+    activities: ['Hiking', 'City Tour', 'Boat Ride']
+};
+
+app.get('/api/concierge', (req, res) => {
+    const { type } = req.query;
+    res.json(recommendations[type] || []);
+});
+
+app.listen(3000, () => {
+    console.log('Server running on http://localhost:3000');
+});
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+
+const VirtualConcierge = () => {
+    const [type, setType] = useState('attractions');
+    const [recommendations, setRecommendations] = useState([]);
+
+    useEffect(() => {
+        axios.get('http://localhost:3000/api/concierge', { params: { type } })
+            .then(response => setRecommendations(response.data))
+            .catch(error => console.error('Error fetching recommendations:', error));
+    }, [type]);
+
+    return (
+        <div>
+            <h3>Virtual Concierge</h3>
+            <select onChange={e => setType(e.target.value)}>
+                <option value="attractions">Attractions</option>
+                <option value="dining">Dining</option>
+                <option value="transportation">Transportation</option>
+                <option value="activities">Activities</option>
+            </select>
+            <ul>
+                {recommendations.map((item, index) => (
+                    <li key={index}>{item}</li>
+                ))}
+            </ul>
+        </div>
+    );
+};
+
+export default VirtualConcierge;
 
 
 
