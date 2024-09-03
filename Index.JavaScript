@@ -7857,6 +7857,45 @@ function App() {
 }
 
 ReactDOM.render(<App />, document.getElementById('root'));
+import React from 'react';
+import ReactDOM from 'react-dom';
+import { useTranslation, initReactI18next } from 'react-i18next';
+import i18n from 'i18next';
+
+i18n.use(initReactI18next).init({
+    resources: {
+        en: {
+            translation: {
+                "welcome": "Welcome",
+                // Add more translations
+            }
+        },
+        fr: {
+            translation: {
+                "welcome": "Bienvenue",
+                // Add more translations
+            }
+        }
+    },
+    lng: "en",
+    fallbackLng: "en",
+    interpolation: {
+        escapeValue: false
+    }
+});
+
+function App() {
+    const { t } = useTranslation();
+
+    return (
+        <div>
+            <h1>{t('welcome')}</h1>
+            {/* Add more components */}
+        </div>
+    );
+}
+
+ReactDOM.render(<App />, document.getElementById('root'));
 
 
 
