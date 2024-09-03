@@ -860,4 +860,3 @@ properties = {
 booking_system = PropertyBooking(properties)
 print(booking_system.get_dynamic_price(1, 1.2, 1.1, [95, 105, 110]))  # Calculate dynamic price
 print(booking_system.check_availability(1, '2024-09-11', '2024-09-14'))  # Check availability
-
