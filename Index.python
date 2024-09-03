@@ -1455,3 +1455,364 @@ function BookingForm() {
 }
 
 export default BookingForm;
+from flask import Flask, request, jsonify
+from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
+from sqlalchemy.exc import SQLAlchemyError
+import stripe
+import paypalrestsdk
+
+app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///bookings.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
+
+# Stripe API keys
+stripe.api_key = 'your_stripe_secret_key'
+
+# PayPal configuration
+paypalrestsdk.configure({
+    "mode": "sandbox",  # sandbox or live
+    "client_id": "your_paypal_client_id",
+    "client_secret": "your_paypal_client_secret"
+})
+
+class Booking(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    property_id = db.Column(db.Integer, nullable=False)
+    user_id = db.Column(db.Integer, nullable=False)
+    daily_rate = db.Column(db.Float, nullable=False)
+    transaction_fee = db.Column(db.Float, default=10.0)
+    total_amount = db.Column(db.Float, nullable=False)
+    status = db.Column(db.String(50), nullable=False, default='pending')
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+class Host(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, nullable=False)
+    stripe_account_id = db.Column(db.String(255), nullable=False)
+    paypal_account_id = db.Column(db.String(255), nullable=True)
+    bank_account = db.Column(db.String(255), nullable=True)
+
+@app.route('/calculate-amount', methods=['POST'])
+def calculate_amount():
+    try:
+        data = request.json
+        daily_rate = data.get('daily_rate')
+        if daily_rate is None or daily_rate <= 0:
+            return jsonify({"error": "Invalid daily rate"}), 400
+        transaction_fee = 10.0
+        total_amount = daily_rate + transaction_fee
+        return jsonify({"total_amount": total_amount})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/create-booking', methods=['POST'])
+def create_booking():
+    try:
+        data = request.json
+        daily_rate = data.get('daily_rate')
+        if daily_rate is None or daily_rate <= 0:
+            return jsonify({"error": "Invalid daily rate"}), 400
+        transaction_fee = 10.0
+        total_amount = daily_rate + transaction_fee
+        new_booking = Booking(
+            property_id=data['property_id'],
+            user_id=data['user_id'],
+            daily_rate=daily_rate,
+            transaction_fee=transaction_fee,
+            total_amount=total_amount
+        )
+        db.session.add(new_booking)
+        db.session.commit()
+        return jsonify({"message": "Booking created successfully", "booking_id": new_booking.id})
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/hold-funds/<int:booking_id>', methods=['POST'])
+def hold_funds(booking_id):
+    try:
+        booking = Booking.query.get_or_404(booking_id)
+        if booking.status != 'pending':
+            return jsonify({"error": "Funds already held or booking completed"}), 400
+        # Logic to hold funds securely (placeholder)
+        booking.status = 'funds_held'
+        db.session.commit()
+        return jsonify({"message": "Funds held successfully"})
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/calculate-multi-day-amount', methods=['POST'])
+def calculate_multi_day_amount():
+    try:
+        data = request.json
+        daily_rate = data.get('daily_rate')
+        days = data.get('days')
+        if daily_rate is None or daily_rate <= 0 or days is None or days <= 0:
+            return jsonify({"error": "Invalid daily rate or days"}), 400
+        transaction_fee = 10.0
+        total_amount = (daily_rate * days) + transaction_fee
+        return jsonify({"total_amount": total_amount})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/complete-booking/<int:booking_id>', methods=['POST'])
+def complete_booking(booking_id):
+    try:
+        booking = Booking.query.get_or_404(booking_id)
+        if booking.status != 'funds_held':
+            return jsonify({"error": "Funds not held or booking already completed"}), 400
+        # Deduct commission and transaction fee
+        commission = booking.total_amount * 0.30
+        host_amount = booking.total_amount - commission - booking.transaction_fee
+        # Logic to transfer funds to host (placeholder)
+        booking.status = 'completed'
+        db.session.commit()
+        return jsonify({"message": "Booking completed successfully", "host_amount": host_amount})
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/add-host', methods=['POST'])
+def add_host():
+    try:
+        data = request.json
+        new_host = Host(
+            user_id=data['user_id'],
+            stripe_account_id=data.get('stripe_account_id'),
+            paypal_account_id=data.get('paypal_account_id'),
+            bank_account=data.get('bank_account')
+        )
+        db.session.add(new_host)
+        db.session.commit()
+        return jsonify({"message": "Host added successfully", "host_id": new_host.id})
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+if __name__ == '__main__':
+    app.run(debug=True)
+@app.route('/complete-booking/<int:booking_id>', methods=['POST'])
+def complete_booking(booking_id):
+    try:
+        booking = Booking.query.get_or_404(booking_id)
+        if booking.status != 'funds_held':
+            return jsonify({"error": "Funds not held or booking already completed"}), 400
+        
+        # Calculate commission and host amount
+        commission = booking.total_amount * 0.30
+        host_amount = booking.total_amount - commission - booking.transaction_fee
+        
+        # Transfer funds to host (Stripe example)
+        stripe.Transfer.create(
+            amount=int(host_amount * 100),  # amount in cents
+            currency='usd',
+            destination=booking.host.stripe_account_id,
+            transfer_group=booking.id
+        )
+        
+        # Update booking status
+        booking.status = 'completed'
+        db.session.commit()
+        
+        return jsonify({"message": "Booking completed successfully", "host_amount": host_amount})
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+from flask import Flask, request, jsonify
+from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
+from sqlalchemy.exc import SQLAlchemyError
+import stripe
+import paypalrestsdk
+
+app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///bookings.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
+
+# Stripe API keys
+stripe.api_key = 'your_stripe_secret_key'
+
+# PayPal configuration
+paypalrestsdk.configure({
+    "mode": "sandbox",  # sandbox or live
+    "client_id": "your_paypal_client_id",
+    "client_secret": "your_paypal_client_secret"
+})
+
+class Booking(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    property_id = db.Column(db.Integer, nullable=False)
+    user_id = db.Column(db.Integer, nullable=False)
+    daily_rate = db.Column(db.Float, nullable=False)
+    transaction_fee = db.Column(db.Float, default=10.0)
+    total_amount = db.Column(db.Float, nullable=False)
+    status = db.Column(db.String(50), nullable=False, default='pending')
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+class Host(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, nullable=False)
+    stripe_account_id = db.Column(db.String(255), nullable=False)
+    paypal_account_id = db.Column(db.String(255), nullable=True)
+    bank_account = db.Column(db.String(255), nullable=True)
+
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    bank_account = db.Column(db.String(255), nullable=True)
+
+@app.route('/calculate-amount', methods=['POST'])
+def calculate_amount():
+    try:
+        data = request.json
+        daily_rate = data.get('daily_rate')
+        if daily_rate is None or daily_rate <= 0:
+            return jsonify({"error": "Invalid daily rate"}), 400
+        transaction_fee = 10.0
+        total_amount = daily_rate + transaction_fee
+        return jsonify({"total_amount": total_amount})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/create-booking', methods=['POST'])
+def create_booking():
+    try:
+        data = request.json
+        daily_rate = data.get('daily_rate')
+        if daily_rate is None or daily_rate <= 0:
+            return jsonify({"error": "Invalid daily rate"}), 400
+        transaction_fee = 10.0
+        total_amount = daily_rate + transaction_fee
+        new_booking = Booking(
+            property_id=data['property_id'],
+            user_id=data['user_id'],
+            daily_rate=daily_rate,
+            transaction_fee=transaction_fee,
+            total_amount=total_amount
+        )
+        db.session.add(new_booking)
+        db.session.commit()
+        return jsonify({"message": "Booking created successfully", "booking_id": new_booking.id})
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/hold-funds/<int:booking_id>', methods=['POST'])
+def hold_funds(booking_id):
+    try:
+        booking = Booking.query.get_or_404(booking_id)
+        if booking.status != 'pending':
+            return jsonify({"error": "Funds already held or booking completed"}), 400
+        # Logic to hold funds securely (placeholder)
+        booking.status = 'funds_held'
+        db.session.commit()
+        return jsonify({"message": "Funds held successfully"})
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/calculate-multi-day-amount', methods=['POST'])
+def calculate_multi_day_amount():
+    try:
+        data = request.json
+        daily_rate = data.get('daily_rate')
+        days = data.get('days')
+        if daily_rate is None or daily_rate <= 0 or days is None or days <= 0:
+            return jsonify({"error": "Invalid daily rate or days"}), 400
+        transaction_fee = 10.0
+        total_amount = (daily_rate * days) + transaction_fee
+        return jsonify({"total_amount": total_amount})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/complete-booking/<int:booking_id>', methods=['POST'])
+def complete_booking(booking_id):
+    try:
+        booking = Booking.query.get_or_404(booking_id)
+        if booking.status != 'funds_held':
+            return jsonify({"error": "Funds not held or booking already completed"}), 400
+        
+        # Calculate commission and host amount
+        commission = booking.total_amount * 0.30
+        host_amount = booking.total_amount - commission - booking.transaction_fee
+        
+        # Transfer funds to host
+        if booking.host.stripe_account_id:
+            stripe.Transfer.create(
+                amount=int(host_amount * 100),  # amount in cents
+                currency='usd',
+                destination=booking.host.stripe_account_id,
+                transfer_group=booking.id
+            )
+        elif booking.host.paypal_account_id:
+            # PayPal transfer logic (placeholder)
+            pass
+        elif booking.host.bank_account:
+            # Bank transfer logic (placeholder)
+            pass
+        
+        # Update booking status
+        booking.status = 'completed'
+        db.session.commit()
+        
+        return jsonify({"message": "Booking completed successfully", "host_amount": host_amount})
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/add-host', methods=['POST'])
+def add_host():
+    try:
+        data = request.json
+        new_host = Host(
+            user_id=data['user_id'],
+            stripe_account_id=data.get('stripe_account_id'),
+            paypal_account_id=data.get('paypal_account_id'),
+            bank_account=data.get('bank_account')
+        )
+        db.session.add(new_host)
+        db.session.commit()
+        return jsonify({"message": "Host added successfully", "host_id": new_host.id})
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/add-user', methods=['POST'])
+def add_user():
+    try:
+        data = request.json
+        new_user = User(
+            bank_account=data.get('bank_account')
+        )
+        db.session.add(new_user)
+        db.session.commit()
+        return jsonify({"message": "User added successfully", "user_id": new_user.id})
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+if __name__ == '__main__':
+    app.run(debug=True)
