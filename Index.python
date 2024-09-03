@@ -1177,3 +1177,281 @@ def distribute_funds(booking_id):
         return jsonify({"error": str(e)}), 500
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+from flask import Flask, request, jsonify
+from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
+from sqlalchemy.exc import SQLAlchemyError
+import stripe
+
+app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///bookings.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
+
+# Stripe API keys
+stripe.api_key = 'your_stripe_secret_key'
+
+class Booking(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    property_id = db.Column(db.Integer, nullable=False)
+    user_id = db.Column(db.Integer, nullable=False)
+    daily_rate = db.Column(db.Float, nullable=False)
+    transaction_fee = db.Column(db.Float, default=10.0)
+    total_amount = db.Column(db.Float, nullable=False)
+    status = db.Column(db.String(50), nullable=False, default='pending')
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+class Host(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, nullable=False)
+    stripe_account_id = db.Column(db.String(255), nullable=False)
+
+@app.route('/calculate-amount', methods=['POST'])
+def calculate_amount():
+    try:
+        data = request.json
+        daily_rate = data.get('daily_rate')
+        if daily_rate is None or daily_rate <= 0:
+            return jsonify({"error": "Invalid daily rate"}), 400
+        transaction_fee = 10.0
+        total_amount = daily_rate + transaction_fee
+        return jsonify({"total_amount": total_amount})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/create-booking', methods=['POST'])
+def create_booking():
+    try:
+        data = request.json
+        daily_rate = data.get('daily_rate')
+        if daily_rate is None or daily_rate <= 0:
+            return jsonify({"error": "Invalid daily rate"}), 400
+        transaction_fee = 10.0
+        total_amount = daily_rate + transaction_fee
+        new_booking = Booking(
+            property_id=data['property_id'],
+            user_id=data['user_id'],
+            daily_rate=daily_rate,
+            transaction_fee=transaction_fee,
+            total_amount=total_amount
+        )
+        db.session.add(new_booking)
+        db.session.commit()
+        return jsonify({"message": "Booking created successfully", "booking_id": new_booking.id})
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/hold-funds/<int:booking_id>', methods=['POST'])
+def hold_funds(booking_id):
+    try:
+        booking = Booking.query.get_or_404(booking_id)
+        if booking.status != 'pending':
+            return jsonify({"error": "Funds already held or booking completed"}), 400
+        # Logic to hold funds securely (placeholder)
+        booking.status = 'funds_held'
+        db.session.commit()
+        return jsonify({"message": "Funds held successfully"})
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/calculate-multi-day-amount', methods=['POST'])
+def calculate_multi_day_amount():
+    try:
+        data = request.json
+        daily_rate = data.get('daily_rate')
+        days = data.get('days')
+        if daily_rate is None or daily_rate <= 0 or days is None or days <= 0:
+            return jsonify({"error": "Invalid daily rate or days"}), 400
+        transaction_fee = 10.0
+        total_amount = (daily_rate * days) + transaction_fee
+        return jsonify({"total_amount": total_amount})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/complete-booking/<int:booking_id>', methods=['POST'])
+def complete_booking(booking_id):
+    try:
+        booking = Booking.query.get_or_404(booking_id)
+        if booking.status != 'funds_held':
+            return jsonify({"error": "Funds not held or booking already completed"}), 400
+        commission = booking.total_amount * 0.30
+        host_amount = booking.total_amount * 0.70
+        # Logic to transfer funds (placeholder)
+        booking.status = 'completed'
+        db.session.commit()
+        return jsonify({"message": "Booking completed successfully", "commission": commission, "host_amount": host_amount})
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/distribute-funds/<int:booking_id>', methods=['POST'])
+def distribute_funds(booking_id):
+    try:
+        booking = Booking.query.get_or_404(booking_id)
+        if booking.status != 'funds_held':
+            return jsonify({"error": "Funds not held or booking already completed"}), 400
+        commission = booking.total_amount * 0.30
+        host_amount = booking.total_amount * 0.70
+        host = Host.query.filter_by(user_id=booking.user_id).first()
+        if not host:
+            return jsonify({"error": "Host not found"}), 404
+        # Transfer funds to host using Stripe
+        stripe.Transfer.create(
+            amount=int(host_amount * 100),  # Amount in cents
+            currency='usd',
+            destination=host.stripe_account_id,
+            transfer_group=booking.id
+        )
+        booking.status = 'completed'
+        db.session.commit()
+        return jsonify({"message": "Funds distributed successfully", "commission": commission, "host_amount": host_amount})
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+if __name__ == '__main__':
+    db.create_all()
+    app.run(debug=True)
+@app.route('/register-host', methods=['POST'])
+def register_host():
+    try:
+        data = request.json
+        user_id = data.get('user_id')
+        stripe_account_id = data.get('stripe_account_id')
+        if not user_id or not stripe_account_id:
+            return jsonify({"error": "User ID and Stripe Account ID are required"}), 400
+        new_host = Host(user_id=user_id, stripe_account_id=stripe_account_id)
+        db.session.add(new_host)
+        db.session.commit()
+        return jsonify({"message": "Host registered successfully"})
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+if __name__ == '__main__':
+    db.create_all()
+    app.run(debug=True)
+import React, { useState } from 'react';
+import axios from 'axios';
+
+function HostRegistrationForm() {
+    const [userId, setUserId] = useState('');
+    const [stripeAccountId, setStripeAccountId] = useState('');
+    const [message, setMessage] = useState(null);
+    const [error, setError] = useState(null);
+
+    const registerHost = async () => {
+        try {
+            const response = await axios.post('/register-host', {
+                user_id: parseInt(userId),
+                stripe_account_id: stripeAccountId
+            });
+            setMessage(response.data.message);
+            setError(null);
+        } catch (err) {
+            setError(err.response ? err.response.data.error : 'An error occurred');
+        }
+    };
+
+    return (
+        <div>
+            <h1>Host Registration</h1>
+            <input
+                type="number"
+                value={userId}
+                onChange={(e) => setUserId(e.target.value)}
+                placeholder="Enter User ID"
+            />
+            <input
+                type="text"
+                value={stripeAccountId}
+                onChange={(e) => setStripeAccountId(e.target.value)}
+                placeholder="Enter Stripe Account ID"
+            />
+            <button onClick={registerHost}>Register</button>
+            {error && <p style={{ color: 'red' }}>{error}</p>}
+            {message && <p style={{ color: 'green' }}>{message}</p>}
+        </div>
+    );
+}
+
+export default HostRegistrationForm;
+import React, { useState } from 'react';
+import axios from 'axios';
+
+function BookingForm() {
+    const [dailyRate, setDailyRate] = useState('');
+    const [days, setDays] = useState(1);
+    const [totalAmount, setTotalAmount] = useState(null);
+    const [transactionFee, setTransactionFee] = useState(10);
+    const [error, setError] = useState(null);
+
+    const calculateAmount = async () => {
+        try {
+            const response = await axios.post('/calculate-multi-day-amount', {
+                daily_rate: parseFloat(dailyRate),
+                days: parseInt(days)
+            });
+            setTotalAmount(response.data.total_amount);
+            setError(null);
+        } catch (err) {
+            setError(err.response ? err.response.data.error : 'An error occurred');
+        }
+    };
+
+    const createBooking = async () => {
+        try {
+            const response = await axios.post('/create-booking', {
+                property_id: 1, // Example property ID
+                user_id: 1, // Example user ID
+                daily_rate: parseFloat(dailyRate)
+            });
+            alert(response.data.message);
+            setError(null);
+        } catch (err) {
+            setError(err.response ? err.response.data.error : 'An error occurred');
+        }
+    };
+
+    return (
+        <div>
+            <h1>Book a Property</h1>
+            <input
+                type="number"
+                value={dailyRate}
+                onChange={(e) => setDailyRate(e.target.value)}
+                placeholder="Enter daily rate"
+            />
+            <input
+                type="number"
+                value={days}
+                onChange={(e) => setDays(e.target.value)}
+                placeholder="Enter number of days"
+            />
+            <button onClick={calculateAmount}>Calculate Total Amount</button>
+            {error && <p style={{ color: 'red' }}>{error}</p>}
+            {totalAmount && (
+                <div>
+                    <p>Daily Rate: ${dailyRate}</p>
+                    <p>Transaction Fee: ${transactionFee}</p>
+                    <p>Total Amount for {days} day(s): ${totalAmount}</p>
+                </div>
+            )}
+            <button onClick={createBooking}>Create Booking</button>
+        </div>
+    );
+}
+
+export default BookingForm;
