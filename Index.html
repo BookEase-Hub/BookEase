@@ -2597,3 +2597,46 @@
     </script>
 </body>
 </html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Upload Listing</title>
+</head>
+<body>
+    <h1>Upload Property Listing</h1>
+    <form action="/upload-listing" method="post">
+        <label for="title">Title:</label>
+        <input type="text" id="title" name="title" required><br><br>
+        <label for="description">Description:</label>
+        <textarea id="description" name="description" required></textarea><br><br>
+        <label for="price">Price:</label>
+        <input type="number" id="price" name="price" required><br><br>
+        <button type="submit">Upload</button>
+    </form>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Terms and Conditions</title>
+</head>
+<body>
+    <h1>Terms and Conditions</h1>
+    <p>1. Evaluate Your Environment: Ensure your space is suitable for hosting by providing a clean, safe, and comfortable setting for guests. Regardless of size or uniqueness, clearly communicate your place's attributes.</p>
+    <p>2. Ready Your Space: Prepare your space for guests by decluttering, stocking essential items like toiletries and linens, and adding personal touches for a welcoming atmosphere.</p>
+    <p>3. Craft a Listing: Create an Airbnb listing by writing a thorough description, setting prices, and sharing high-quality images of your space. Listing your space is free, with Airbnb charging a service fee only upon booking confirmation.</p>
+    <p>4. Know Local Regulations: Familiarize yourself with local laws and taxes related to short-term rentals, including obtaining permits and fulfilling tax obligations.</p>
+    <p>5. Uphold Quality Standards: Hosts are expected to meet standards in reservation management, communication, accuracy in listings, and cleanliness. Maintaining excellent review ratings is also crucial.</p>
+    <p>6. Be Responsive: Prioritize prompt responses to guest inquiries and booking requests to demonstrate attentiveness and consideration.</p>
+    <p>7. Minimize Cancellations: Strive to avoid canceling confirmed bookings as it can have adverse effects on your hosting reputation.</p>
+    <button onclick="acceptTerms()">Accept</button>
+</body>
+<script>
+function acceptTerms() {
+    alert("Terms and Conditions accepted.");
+    window.location.href = "/";
+}
+</script>
+</html>
