@@ -2001,3 +2001,103 @@ def add_user():
 
 if __name__ == '__main__':
     app.run(debug=True)
+from flask import Flask, request, jsonify, render_template
+from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
+from sqlalchemy.exc import SQLAlchemyError
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+
+app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///listings.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
+
+class Listing(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(255), nullable=False)
+    description = db.Column(db.Text, nullable=False)
+    price = db.Column(db.Float, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+class Host(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(255), nullable=False)
+    phone = db.Column(db.String(20), nullable=True)
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/upload-listing', methods=['POST'])
+def upload_listing():
+    try:
+        data = request.form
+        new_listing = Listing(
+            title=data['title'],
+            description=data['description'],
+            price=data['price']
+        )
+        db.session.add(new_listing)
+        db.session.commit()
+        
+        # Send notification
+        send_notification(new_listing)
+        
+        return jsonify({"message": "Listing uploaded successfully", "listing_id": new_listing.id})
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+def send_notification(listing):
+    host = Host.query.first()  # Assuming a single host for simplicity
+    if host:
+        subject = "New Property Listing Uploaded"
+        body = f"""
+        A new property listing has been uploaded:
+        Title: {listing.title}
+        Description: {listing.description}
+        Price: ${listing.price}
+        
+        Please ensure your space is suitable for hosting by providing a clean, safe, and comfortable setting for guests. 
+        Prepare your space by decluttering, stocking essential items like toiletries and linens, and adding personal touches for a welcoming atmosphere.
+        Create an BookEase listing by writing a thorough description, setting prices, and sharing high-quality images of your space. Listing your space is free, with BookEase charging a commission fee of 30% only upon booking confirmation and Guest completion stay.
+        Familiarize yourself with local laws and taxes related to short-term rentals, including obtaining permits and fulfilling tax.
+        Hosts are expected to meet standards in reservation management, communication, accuracy in listings, and cleanliness. Maintaining excellent review ratings is also crucial.
+        Prioritize prompt responses to guest inquiries and booking requests to demonstrate attentiveness and consideration.
+        Strive to avoid canceling confirmed bookings as it can have adverse effects on your hosting reputation.
+        Always stay alert on the BookEase platform or through push notifications and email when a guest makes a booking.
+        """
+        send_email(host.email, subject, body)
+        send_sms(host.phone, body)
+
+def send_email(to_email, subject, body):
+    from_email = "your_email@example.com"
+    password = "your_email_password"
+    
+    msg = MIMEMultipart()
+    msg['From'] = from_email
+    msg['To'] = to_email
+    msg['Subject'] = subject
+    msg.attach(MIMEText(body, 'plain'))
+    
+    server = smtplib.SMTP('smtp.example.com', 587)
+    server.starttls()
+    server.login(from_email, password)
+    text = msg.as_string()
+    server.sendmail(from_email, to_email, text)
+    server.quit()
+
+def send_sms(to_phone, body):
+    # Implement SMS sending logic here (e.g., using Twilio)
+    pass
+
+@app.route('/terms-and-conditions')
+def terms_and_conditions():
+    return render_template('terms_and_conditions.html')
+
+if __name__ == '__main__':
+    app.run(debug=True)
