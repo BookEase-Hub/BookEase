@@ -2429,3 +2429,444 @@ class Booking:
         # Logic to block and erase host details
         print(f"Blocking and erasing host details for host: {host_id}")
         # Placeholder for actual blocking and erasing logic
+class Booking:
+    def __init__(self, booking_id, user_id, host_id, paid, status):
+        self.booking_id = booking_id
+        self.user_id = user_id
+        self.host_id = host_id
+        self.paid = paid
+        self.status = status
+        self.warning_count = 0  # Track the number of warnings sent to the host
+
+    def cancel_booking(self):
+        if not self.is_host_reachable(self.host_id):
+            self.process_cancellation()
+        else:
+            print("Host is reachable. No need to cancel.")
+
+    def is_host_reachable(self, host_id):
+        # Logic to check if the host is reachable
+        # This could involve checking the host's last activity or sending a ping
+        return self.check_host_activity(host_id)
+
+    def check_host_activity(self, host_id):
+        # Detailed logic to check host's last activity
+        # For example, checking the last login time or sending a ping
+        print(f"Checking activity for host: {host_id}")
+        # Placeholder for actual activity check logic
+        return False  # Assume host is not reachable for demonstration
+
+    def process_cancellation(self):
+        if self.paid:
+            self.offer_alternative()
+        else:
+            self.cancel_unpaid_booking()
+        self.apply_penalty(self.host_id)
+
+    def offer_alternative(self):
+        alternative_host_id = self.find_alternative_host()
+        if alternative_host_id:
+            self.update_booking(alternative_host_id)
+        else:
+            self.process_refund()
+
+    def find_alternative_host(self):
+        # Logic to find an alternative host with similar features and location
+        # This could involve querying the database for available hosts
+        print("Finding alternative host...")
+        return "alternative_host_id"  # Placeholder for actual logic
+
+    def update_booking(self, new_host_id):
+        self.host_id = new_host_id
+        self.status = "Updated"
+        print(f"Booking updated to new host: {new_host_id}")
+
+    def process_refund(self):
+        # Logic to process refund within 14 business days
+        print("Processing refund within 14 business days...")
+        self.initiate_refund()
+
+    def initiate_refund(self):
+        # Detailed logic to initiate the refund process
+        print("Initiating refund process...")
+        # Placeholder for actual refund initiation logic
+        # Example: Interacting with payment gateway API to process refund
+        self.complete_refund()
+
+    def complete_refund(self):
+        # Logic to complete the refund process
+        print("Refund completed successfully.")
+        # Placeholder for actual refund completion logic
+
+    def cancel_unpaid_booking(self):
+        self.status = "Cancelled"
+        print("Booking cancelled due to non-payment.")
+
+    def apply_penalty(self, host_id):
+        # Logic to apply penalty to the host
+        print(f"Applying penalty to host: {host_id}")
+        self.enforce_penalty(host_id)
+
+    def enforce_penalty(self, host_id):
+        # Logic to enforce penalty, such as blocking updates for 30 days
+        print(f"Host {host_id} is penalized for 30 days.")
+        # Logic to handle repeat offenses
+        self.check_repeat_offenses(host_id)
+
+    def check_repeat_offenses(self, host_id):
+        # Logic to check for repeat offenses and block host if necessary
+        print(f"Checking repeat offenses for host: {host_id}")
+        if self.warning_count >= 3:
+            self.block_host(host_id)
+        else:
+            self.send_warning_to_host(host_id)
+
+    def send_warning_to_host(self, host_id):
+        # Logic to send a warning to the host
+        self.warning_count += 1
+        print(f"Warning {self.warning_count} sent to host: {host_id}")
+
+    def block_host(self, host_id):
+        # Logic to block and erase host details
+        print(f"Blocking and erasing host details for host: {host_id}")
+        # Placeholder for actual blocking and erasing logic
+class Booking:
+    def __init__(self, booking_id, user_id, host_id, paid, status):
+        self.booking_id = booking_id
+        self.user_id = user_id
+        self.host_id = host_id
+        self.paid = paid
+        self.status = status
+        self.warning_count = 0  # Track the number of warnings sent to the host
+
+    def cancel_booking(self):
+        if not self.is_host_reachable(self.host_id):
+            self.process_cancellation()
+        else:
+            print("Host is reachable. No need to cancel.")
+
+    def is_host_reachable(self, host_id):
+        # Logic to check if the host is reachable
+        # This could involve checking the host's last activity or sending a ping
+        return self.check_host_activity(host_id)
+
+    def check_host_activity(self, host_id):
+        # Detailed logic to check host's last activity
+        # For example, checking the last login time or sending a ping
+        print(f"Checking activity for host: {host_id}")
+        # Placeholder for actual activity check logic
+        return False  # Assume host is not reachable for demonstration
+
+    def process_cancellation(self):
+        if self.paid:
+            self.offer_alternative()
+        else:
+            self.cancel_unpaid_booking()
+        self.apply_penalty(self.host_id)
+
+    def offer_alternative(self):
+        alternative_host_id = self.find_alternative_host()
+        if alternative_host_id:
+            self.update_booking(alternative_host_id)
+        else:
+            self.process_refund()
+
+    def find_alternative_host(self):
+        # Logic to find an alternative host with similar features and location
+        # This could involve querying the database for available hosts
+        print("Finding alternative host...")
+        return "alternative_host_id"  # Placeholder for actual logic
+
+    def update_booking(self, new_host_id):
+        self.host_id = new_host_id
+        self.status = "Updated"
+        print(f"Booking updated to new host: {new_host_id}")
+
+    def process_refund(self):
+        # Logic to process refund within 14 business days
+        print("Processing refund within 14 business days...")
+        self.initiate_refund()
+
+    def initiate_refund(self):
+        # Detailed logic to initiate the refund process
+        print("Initiating refund process...")
+        # Placeholder for actual refund initiation logic
+        # Example: Interacting with payment gateway API to process refund
+        self.complete_refund()
+
+    def complete_refund(self):
+        # Logic to complete the refund process
+        print("Refund completed successfully.")
+        # Placeholder for actual refund completion logic
+
+    def cancel_unpaid_booking(self):
+        self.status = "Cancelled"
+        print("Booking cancelled due to non-payment.")
+
+    def apply_penalty(self, host_id):
+        # Logic to apply penalty to the host
+        print(f"Applying penalty to host: {host_id}")
+        self.enforce_penalty(host_id)
+
+    def enforce_penalty(self, host_id):
+        # Logic to enforce penalty, such as blocking updates for 30 days
+        print(f"Host {host_id} is penalized for 30 days.")
+        # Logic to handle repeat offenses
+        self.check_repeat_offenses(host_id)
+
+    def check_repeat_offenses(self, host_id):
+        # Logic to check for repeat offenses and block host if necessary
+        print(f"Checking repeat offenses for host: {host_id}")
+        if self.warning_count >= 3:
+            self.block_host(host_id)
+        else:
+            self.send_warning_to_host(host_id)
+
+    def send_warning_to_host(self, host_id):
+        # Logic to send a warning to the host
+        self.warning_count += 1
+        print(f"Warning {self.warning_count} sent to host: {host_id}")
+
+    def block_host(self, host_id):
+        # Logic to block and erase host details
+        print(f"Blocking and erasing host details for host: {host_id}")
+        # Placeholder for actual blocking and erasing logic
+class Booking:
+    def __init__(self, booking_id, user_id, host_id, paid, status):
+        self.booking_id = booking_id
+        self.user_id = user_id
+        self.host_id = host_id
+        self.paid = paid
+        self.status = status
+        self.warning_count = 0  # Track the number of warnings sent to the host
+
+    def cancel_booking(self):
+        if not self.is_host_reachable(self.host_id):
+            self.process_cancellation()
+        else:
+            print("Host is reachable. No need to cancel.")
+
+    def is_host_reachable(self, host_id):
+        # Logic to check if the host is reachable
+        # This could involve checking the host's last activity or sending a ping
+        return self.check_host_activity(host_id)
+
+    def check_host_activity(self, host_id):
+        # Detailed logic to check host's last activity
+        # For example, checking the last login time or sending a ping
+        print(f"Checking activity for host: {host_id}")
+        # Placeholder for actual activity check logic
+        return False  # Assume host is not reachable for demonstration
+
+    def process_cancellation(self):
+        if self.paid:
+            self.offer_alternative()
+        else:
+            self.cancel_unpaid_booking()
+        self.apply_penalty(self.host_id)
+
+    def offer_alternative(self):
+        alternative_host_id = self.find_alternative_host()
+        if alternative_host_id:
+            self.update_booking(alternative_host_id)
+        else:
+            self.process_refund()
+
+    def find_alternative_host(self):
+        # Logic to find an alternative host with similar features and location
+        # This could involve querying the database for available hosts
+        print("Finding alternative host...")
+        return "alternative_host_id"  # Placeholder for actual logic
+
+    def update_booking(self, new_host_id):
+        self.host_id = new_host_id
+        self.status = "Updated"
+        print(f"Booking updated to new host: {new_host_id}")
+
+    def process_refund(self):
+        # Logic to process refund within 14 business days
+        print("Processing refund within 14 business days...")
+        self.initiate_refund()
+
+    def initiate_refund(self):
+        # Detailed logic to initiate the refund process
+        print("Initiating refund process...")
+        # Placeholder for actual refund initiation logic
+        # Example: Interacting with payment gateway API to process refund
+        self.complete_refund()
+
+    def complete_refund(self):
+        # Logic to complete the refund process
+        print("Refund completed successfully.")
+        # Placeholder for actual refund completion logic
+
+    def cancel_unpaid_booking(self):
+        self.status = "Cancelled"
+        print("Booking cancelled due to non-payment.")
+
+    def apply_penalty(self, host_id):
+        # Logic to apply penalty to the host
+        print(f"Applying penalty to host: {host_id}")
+        self.enforce_penalty(host_id)
+
+    def enforce_penalty(self, host_id):
+        # Logic to enforce penalty, such as blocking updates for 30 days
+        print(f"Host {host_id} is penalized for 30 days.")
+        # Logic to handle repeat offenses
+        self.check_repeat_offenses(host_id)
+
+    def check_repeat_offenses(self, host_id):
+        # Logic to check for repeat offenses and block host if necessary
+        print(f"Checking repeat offenses for host: {host_id}")
+        if self.warning_count >= 3:
+            self.block_host(host_id)
+        else:
+            self.send_warning_to_host(host_id)
+
+    def send_warning_to_host(self, host_id):
+        # Logic to send a warning to the host
+        self.warning_count += 1
+        print(f"Warning {self.warning_count} sent to host: {host_id}")
+
+    def block_host(self, host_id):
+        # Logic to block and erase host details
+        print(f"Blocking and erasing host details for host: {host_id}")
+        # Placeholder for actual blocking and erasing logic
+class Booking:
+    def __init__(self, booking_id, user_id, host_id, paid, status):
+        self.booking_id = booking_id
+        self.user_id = user_id
+        self.host_id = host_id
+        self.paid = paid
+        self.status = status
+        self.warning_count = 0  # Track the number of warnings sent to the host
+
+    def cancel_booking(self):
+        if not self.is_host_reachable(self.host_id):
+            self.process_cancellation()
+        else:
+            print("Host is reachable. No need to cancel.")
+
+    def is_host_reachable(self, host_id):
+        # Logic to check if the host is reachable
+        # This could involve checking the host's last activity or sending a ping
+        return self.check_host_activity(host_id)
+
+    def check_host_activity(self, host_id):
+        # Detailed logic to check host's last activity
+        # For example, checking the last login time or sending a ping
+        print(f"Checking activity for host: {host_id}")
+        # Placeholder for actual activity check logic
+        return False  # Assume host is not reachable for demonstration
+
+    def process_cancellation(self):
+        if self.paid:
+            self.offer_alternative()
+        else:
+            self.cancel_unpaid_booking()
+        self.apply_penalty(self.host_id)
+
+    def offer_alternative(self):
+        alternative_host_id = self.find_alternative_host()
+        if alternative_host_id:
+            self.update_booking(alternative_host_id)
+        else:
+            self.process_refund()
+
+    def find_alternative_host(self):
+        # Logic to find an alternative host with similar features and location
+        # This could involve querying the database for available hosts
+        print("Finding alternative host...")
+        return "alternative_host_id"  # Placeholder for actual logic
+
+    def update_booking(self, new_host_id):
+        self.host_id = new_host_id
+        self.status = "Updated"
+        print(f"Booking updated to new host: {new_host_id}")
+
+    def process_refund(self):
+        # Logic to process refund within 14 business days
+        print("Processing refund within 14 business days...")
+        self.initiate_refund()
+
+    def initiate_refund(self):
+        # Detailed logic to initiate the refund process
+        print("Initiating refund process...")
+        # Placeholder for actual refund initiation logic
+        # Example: Interacting with payment gateway API to process refund
+        self.complete_refund()
+
+    def complete_refund(self):
+        # Logic to complete the refund process
+        print("Refund completed successfully.")
+        # Placeholder for actual refund completion logic
+
+    def cancel_unpaid_booking(self):
+        self.status = "Cancelled"
+        print("Booking cancelled due to non-payment.")
+
+    def apply_penalty(self, host_id):
+        # Logic to apply penalty to the host
+        print(f"Applying penalty to host: {host_id}")
+        self.enforce_penalty(host_id)
+
+    def enforce_penalty(self, host_id):
+        # Logic to enforce penalty, such as blocking updates for 30 days
+        print(f"Host {host_id} is penalized for 30 days.")
+        # Logic to handle repeat offenses
+        self.check_repeat_offenses(host_id)
+
+    def check_repeat_offenses(self, host_id):
+        # Logic to check for repeat offenses and block host if necessary
+        print(f"Checking repeat offenses for host: {host_id}")
+        if self.warning_count >= 3:
+            self.block_host(host_id)
+        else:
+            self.send_warning_to_host(host_id)
+
+    def send_warning_to_host(self, host_id):
+        # Logic to send a warning to the host
+        self.warning_count += 1
+        print(f"Warning {self.warning_count} sent to host: {host_id}")
+
+    def block_host(self, host_id):
+        # Logic to block and erase host details
+        print(f"Blocking and erasing host details for host: {host_id}")
+        # Placeholder for actual blocking and erasing logic
+class Booking:
+    def __init__(self, booking_id, user_id, host_id, paid, status):
+        self.booking_id = booking_id
+        self.user_id = user_id
+        self.host_id = host_id
+        self.paid = paid
+        self.status = status
+        self.warning_count = 0  # Track the number of warnings sent to the host
+
+    def apply_penalty(self, host_id):
+        # Logic to apply penalty to the host
+        print(f"Applying penalty to host: {host_id}")
+        self.enforce_penalty(host_id)
+
+    def enforce_penalty(self, host_id):
+        # Logic to enforce penalty
+        print(f"Host {host_id} is penalized.")
+        # Logic to handle repeat offenses
+        self.check_repeat_offenses(host_id)
+
+    def check_repeat_offenses(self, host_id):
+        # Logic to check for repeat offenses and send warnings or block host if necessary
+        print(f"Checking repeat offenses for host: {host_id}")
+        if self.warning_count < 3:
+            self.send_warning_to_host(host_id)
+        else:
+            self.block_host(host_id)
+
+    def send_warning_to_host(self, host_id):
+        # Logic to send a warning to the host
+        self.warning_count += 1
+        print(f"Warning {self.warning_count} sent to host: {host_id}")
+
+    def block_host(self, host_id):
+        # Logic to block and erase host details
+        print(f"Blocking and erasing host details for host: {host_id}")
+        # Placeholder for actual blocking and erasing logic
