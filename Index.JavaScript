@@ -7818,3 +7818,422 @@ BEGIN
    SET message = CONCAT('Your property "', NEW.title, '" has been successfully updated.');
    CALL notify_host(NEW.hostId, message);
 END;
+// script.js
+document.getElementById('availability-form').addEventListener('submit', function(event) {
+    event.preventDefault();
+    
+    const startDate = document.getElementById('start-date').value;
+    const duration = document.getElementById('duration').value;
+    
+    if (new Date(startDate) < new Date()) {
+        alert('Start date cannot be in the past.');
+        return;
+    }
+    
+    fetch('/update-availability', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ startDate, duration })
+    })
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById('message').textContent = data.message;
+    })
+    .catch(error => console.error('Error:', error));
+});
+// server.js
+const express = require('express');
+const bodyParser = require('body-parser');
+const app = express();
+
+app.use(bodyParser.json());
+app.use(express.static('public'));
+
+app.post('/update-availability', (req, res) => {
+    const { startDate, duration } = req.body;
+
+    // Here you would update the database with the new availability
+    // For demonstration, we'll just send a success message
+
+    res.json({ message: `Availability updated: ${duration} days from ${startDate}` });
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+});
+// script.js
+$(function() {
+    $("#start-date").datepicker({
+        dateFormat: "yy-mm-dd",
+        changeMonth: true,
+        changeYear: true,
+        minDate: 0
+    });
+});
+
+document.getElementById('availability-form').addEventListener('submit', function(event) {
+    event.preventDefault();
+    
+    const startDate = document.getElementById('start-date').value;
+    const duration = document.getElementById('duration').value;
+    
+    if (new Date(startDate) < new Date()) {
+        alert('Start date cannot be in the past.');
+        return;
+    }
+    
+    fetch('/update-availability', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ startDate, duration })
+    })
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById('message').textContent = data.message;
+    })
+    .catch(error => console.error('Error:', error));
+});
+// server.js
+const express = require('express');
+const bodyParser = require('body-parser');
+const app = express();
+
+app.use(bodyParser.json());
+app.use(express.static('public'));
+
+app.post('/update-availability', (req, res) => {
+    const { startDate, duration } = req.body;
+
+    // Here you would update the database with the new availability
+    // For demonstration, we'll just send a success message
+
+    res.json({ message: `Availability updated: ${duration} days from ${startDate}` });
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+});
+// script.js
+$(function() {
+    $("#start-date").datepicker({
+        dateFormat: "yy-mm-dd",
+        changeMonth: true,
+        changeYear: true,
+        minDate: 0
+    });
+});
+
+document.getElementById('availability-form').addEventListener('submit', function(event) {
+    event.preventDefault();
+    
+    const startDate = document.getElementById('start-date').value;
+    const duration = document.getElementById('duration').value;
+    
+    if (new Date(startDate) < new Date()) {
+        alert('Start date cannot be in the past.');
+        return;
+    }
+    
+    fetch('/update-availability', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ startDate, duration })
+    })
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById('message').textContent = data.message;
+    })
+    .catch(error => console.error('Error:', error));
+});
+// server.js
+const express = require('express');
+const bodyParser = require('body-parser');
+const app = express();
+
+app.use(bodyParser.json());
+app.use(express.static('public'));
+
+let properties = [
+    { id: 1, name: 'Property A', available: true, bookings: [] },
+    { id: 2, name: 'Property B', available: true, bookings: [] }
+];
+
+app.post('/update-availability', (req, res) => {
+    const { startDate, duration } = req.body;
+    const propertyId = 1; // Example property ID
+
+    const property = properties.find(p => p.id === propertyId);
+    if (property) {
+        const endDate = new Date(startDate);
+        endDate.setDate(endDate.getDate() + parseInt(duration));
+
+        property.bookings.push({ startDate, endDate });
+        property.available = false;
+
+        res.json({ message: `Availability updated: ${duration} days from ${startDate}` });
+    } else {
+        res.status(404).json({ message: 'Property not found' });
+    }
+});
+
+app.post('/complete-booking', (req, res) => {
+    const { propertyId, bookingId } = req.body;
+
+    const property = properties.find(p => p.id === propertyId);
+    if (property) {
+        const booking = property.bookings.find(b => b.id === bookingId);
+        if (booking) {
+            property.bookings = property.bookings.filter(b => b.id !== bookingId);
+            property.available = true;
+
+            // Notify host for review and confirmation
+            // For simplicity, we'll just log the notification
+            console.log(`Notify host: Property ${property.name} is now available for review.`);
+
+            res.json({ message: 'Booking completed and property marked as available' });
+        } else {
+            res.status(404).json({ message: 'Booking not found' });
+        }
+    } else {
+        res.status(404).json({ message: 'Property not found' });
+    }
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+});
+// script.js
+$(function() {
+    $("#start-date").datepicker({
+        dateFormat: "yy-mm-dd",
+        changeMonth: true,
+        changeYear: true,
+        minDate: 0
+    });
+});
+
+document.getElementById('availability-form').addEventListener('submit', function(event) {
+    event.preventDefault();
+    
+    const startDate = document.getElementById('start-date').value;
+    const duration = document.getElementById('duration').value;
+    
+    if (new Date(startDate) < new Date()) {
+        alert('Start date cannot be in the past.');
+        return;
+    }
+    
+    fetch('/update-availability', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ startDate, duration })
+    })
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById('message').textContent = data.message;
+    })
+    .catch(error => console.error('Error:', error));
+});
+// server.js
+const express = require('express');
+const bodyParser = require('body-parser');
+const app = express();
+
+app.use(bodyParser.json());
+app.use(express.static('public'));
+
+let properties = [
+    { id: 1, name: 'Property A', available: true, bookings: [] },
+    { id: 2, name: 'Property B', available: true, bookings: [] }
+];
+
+app.post('/update-availability', (req, res) => {
+    const { startDate, duration } = req.body;
+    const propertyId = 1; // Example property ID
+
+    const property = properties.find(p => p.id === propertyId);
+    if (property) {
+        const endDate = new Date(startDate);
+        endDate.setDate(endDate.getDate() + parseInt(duration));
+
+        property.bookings.push({ startDate, endDate });
+        property.available = false;
+
+        res.json({ message: `Availability updated: ${duration} days from ${startDate}` });
+    } else {
+        res.status(404).json({ message: 'Property not found' });
+    }
+});
+
+app.post('/complete-booking', (req, res) => {
+    const { propertyId, bookingId } = req.body;
+
+    const property = properties.find(p => p.id === propertyId);
+    if (property) {
+        const booking = property.bookings.find(b => b.id === bookingId);
+        if (booking) {
+            property.bookings = property.bookings.filter(b => b.id !== bookingId);
+            property.available = true;
+
+            // Notify host for review and confirmation
+            console.log(`Notify host: Property ${property.name} is now available for review.`);
+
+            res.json({ message: 'Booking completed and property marked as available' });
+        } else {
+            res.status(404).json({ message: 'Booking not found' });
+        }
+    } else {
+        res.status(404).json({ message: 'Property not found' });
+    }
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+});
+// script.js
+$(function() {
+    $("#start-date").datepicker({
+        dateFormat: "yy-mm-dd",
+        changeMonth: true,
+        changeYear: true,
+        minDate: 0
+    });
+
+    loadListings();
+});
+
+document.getElementById('availability-form').addEventListener('submit', function(event) {
+    event.preventDefault();
+    
+    const startDate = document.getElementById('start-date').value;
+    const duration = document.getElementById('duration').value;
+    
+    if (new Date(startDate) < new Date()) {
+        alert('Start date cannot be in the past.');
+        return;
+    }
+    
+    fetch('/update-availability', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ startDate, duration })
+    })
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById('message').textContent = data.message;
+        loadListings();
+    })
+    .catch(error => console.error('Error:', error));
+});
+
+function loadListings() {
+    fetch('/listings')
+    .then(response => response.json())
+    .then(data => {
+        const listings = document.getElementById('listings');
+        listings.innerHTML = '';
+        data.forEach(listing => {
+            const li = document.createElement('li');
+            li.textContent = `${listing.name} - Available: ${listing.available}`;
+            const deleteButton = document.createElement('button');
+            deleteButton.textContent = 'Delete';
+            deleteButton.addEventListener('click', () => deleteListing(listing.id));
+            li.appendChild(deleteButton);
+            listings.appendChild(li);
+        });
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+function deleteListing(id) {
+    fetch(`/delete-listing/${id}`, {
+        method: 'DELETE'
+    })
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById('message').textContent = data.message;
+        loadListings();
+    })
+    .catch(error => console.error('Error:', error));
+}
+// server.js
+const express = require('express');
+const bodyParser = require('body-parser');
+const app = express();
+
+app.use(bodyParser.json());
+app.use(express.static('public'));
+
+let properties = [
+    { id: 1, name: 'Property A', available: true, bookings: [] },
+    { id: 2, name: 'Property B', available: true, bookings: [] }
+];
+
+app.post('/update-availability', (req, res) => {
+    const { startDate, duration } = req.body;
+    const propertyId = 1; // Example property ID
+
+    const property = properties.find(p => p.id === propertyId);
+    if (property) {
+        const endDate = new Date(startDate);
+        endDate.setDate(endDate.getDate() + parseInt(duration));
+
+        property.bookings.push({ id: property.bookings.length + 1, startDate, endDate });
+        property.available = false;
+
+        res.json({ message: `Availability updated: ${duration} days from ${startDate}` });
+    } else {
+        res.status(404).json({ message: 'Property not found' });
+    }
+});
+
+app.post('/complete-booking', (req, res) => {
+    const { propertyId, bookingId } = req.body;
+
+    const property = properties.find(p => p.id === propertyId);
+    if (property) {
+        const booking = property.bookings.find(b => b.id === bookingId);
+        if (booking) {
+            property.bookings = property.bookings.filter(b => b.id !== bookingId);
+            property.available = true;
+
+            // Notify host for review and confirmation
+            console.log(`Notify host: Property ${property.name} is now available for review.`);
+
+            res.json({ message: 'Booking completed and property marked as available' });
+        } else {
+            res.status(404).json({ message: 'Booking not found' });
+        }
+    } else {
+        res.status(404).json({ message: 'Property not found' });
+    }
+});
+
+app.get('/listings', (req, res) => {
+    res.json(properties);
+});
+
+app.delete('/delete-listing/:id', (req, res) => {
+    const propertyId = parseInt(req.params.id);
+    properties = properties.filter(p => p.id !== propertyId);
+    res.json({ message: 'Listing deleted successfully' });
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+});
