@@ -2870,3 +2870,85 @@ class Booking:
         # Logic to block and erase host details
         print(f"Blocking and erasing host details for host: {host_id}")
         # Placeholder for actual blocking and erasing logic
+from flask import Flask, request, jsonify
+app = Flask(__name__)
+
+# Sample data
+properties = [
+    {"id": 1, "name": "Beach House", "daily_rate": 20, "image_url": "beach_house.jpg"},
+    {"id": 2, "name": "Mountain Cabin", "daily_rate": 30, "image_url": "mountain_cabin.jpg"}
+]
+
+TRANSACTION_FEE = 10
+
+def calculate_total_cost(daily_rate, days):
+    return daily_rate * days + TRANSACTION_FEE
+
+@app.route('/calculate-amount', methods=['POST'])
+def calculate_amount():
+    data = request.json
+    daily_rate = data['daily_rate']
+    days = data['days']
+    total_amount = calculate_total_cost(daily_rate, days)
+    return jsonify({"total_amount": total_amount})
+
+@app.route('/properties', methods=['GET'])
+def get_properties():
+    durations = [12, 18, 30, 226]
+    for property in properties:
+        property['total_costs'] = {duration: calculate_total_cost(property['daily_rate'], duration) for duration in durations}
+    return jsonify(properties)
+
+if __name__ == '__main__':
+    app.run(debug=True)
+from flask import Flask, request, jsonify
+app = Flask(__name__)
+
+# Sample data
+properties = [
+    {"id": 1, "name": "Beach House", "daily_rate": 20, "image_url": "beach_house.jpg"},
+    {"id": 2, "name": "Mountain Cabin", "daily_rate": 30, "image_url": "mountain_cabin.jpg"}
+]
+
+TRANSACTION_FEE = 10
+
+def calculate_total_cost(daily_rate, days):
+    return daily_rate * days + TRANSACTION_FEE
+
+@app.route('/calculate-amount', methods=['POST'])
+def calculate_amount():
+    data = request.json
+    daily_rate = data['daily_rate']
+    days = data['days']
+    total_amount = calculate_total_cost(daily_rate, days)
+    return jsonify({"total_amount": total_amount})
+
+@app.route('/properties', methods=['GET'])
+def get_properties():
+    durations = [12, 18, 30, 226]
+    for property in properties:
+        property['total_costs'] = {duration: calculate_total_cost(property['daily_rate'], duration) for duration in durations}
+    return jsonify(properties)
+
+@app.route('/create-booking', methods=['POST'])
+def create_booking():
+    data = request.json
+    property_id = data['property_id']
+    user_id = data['user_id']
+    days = data['days']
+    property = next((p for p in properties if p['id'] == property_id), None)
+    if property:
+        total_amount = calculate_total_cost(property['daily_rate'], days)
+        booking = {
+            "property_id": property_id,
+            "user_id": user_id,
+            "days": days,
+            "total_amount": total_amount,
+            "status": "pending"
+        }
+        # Save booking to database (mocked here)
+        return jsonify(booking), 201
+    return jsonify({"error": "Property not found"}), 404
+
+if __name__ == '__main__':
+    app.run(debug=True)
