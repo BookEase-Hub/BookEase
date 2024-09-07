@@ -2640,3 +2640,93 @@ function acceptTerms() {
 }
 </script>
 </html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Property Listings</title>
+    <style>
+        .property {
+            border: 1px solid #ccc;
+            padding: 16px;
+            margin: 16px;
+        }
+        .property img {
+            max-width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div id="properties"></div>
+    <script>
+        async function fetchProperties() {
+            const response = await fetch('/properties');
+            const properties = await response.json();
+            const propertiesContainer = document.getElementById('properties');
+            propertiesContainer.innerHTML = '';
+            properties.forEach(property => {
+                const propertyDiv = document.createElement('div');
+                propertyDiv.className = 'property';
+                propertyDiv.innerHTML = `
+                    <h2>${property.name}</h2>
+                    <img src="${property.image_url}" alt="${property.name}">
+                    <p>Daily Rate: $${property.daily_rate}</p>
+                    <p>Total Cost for 12 days: $${property.total_costs[12]}</p>
+                    <p>Total Cost for 18 days: $${property.total_costs[18]}</p>
+                    <p>Total Cost for 30 days: $${property.total_costs[30]}</p>
+                    <p>Total Cost for 226 days: $${property.total_costs[226]}</p>
+                `;
+                propertiesContainer.appendChild(propertyDiv);
+            });
+        }
+
+        fetchProperties();
+    </script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Property Listings</title>
+    <style>
+        .property {
+            border: 1px solid #ccc;
+            padding: 16px;
+            margin: 16px;
+        }
+        .property img {
+            max-width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div id="properties"></div>
+    <script>
+        async function fetchProperties() {
+            const response = await fetch('/properties');
+            const properties = await response.json();
+            const propertiesContainer = document.getElementById('properties');
+            propertiesContainer.innerHTML = '';
+            properties.forEach(property => {
+                const propertyDiv = document.createElement('div');
+                propertyDiv.className = 'property';
+                propertyDiv.innerHTML = `
+                    <h2>${property.name}</h2>
+                    <img src="${property.image_url}" alt="${property.name}">
+                    <p>Daily Rate: $${property.daily_rate}</p>
+                    <p>Total Cost for 12 days: $${property.total_costs[12]}</p>
+                    <p>Total Cost for 18 days: $${property.total_costs[18]}</p>
+                    <p>Total Cost for 30 days: $${property.total_costs[30]}</p>
+                    <p>Total Cost for 226 days: $${property.total_costs[226]}</p>
+                `;
+                propertiesContainer.appendChild(propertyDiv);
+            });
+        }
+
+        fetchProperties();
+    </script>
+</body>
+</html>
