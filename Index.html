@@ -2730,3 +2730,84 @@ function acceptTerms() {
     </script>
 </body>
 </html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Property Listings</title>
+    <style>
+        .property {
+            border: 1px solid #ccc;
+            padding: 16px;
+            margin: 16px;
+        }
+        .property img {
+            max-width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div id="properties"></div>
+    <script>
+        async function fetchProperties() {
+            const response = await fetch('/properties');
+            const properties = await response.json();
+            const propertiesContainer = document.getElementById('properties');
+            propertiesContainer.innerHTML = '';
+            properties.forEach(property => {
+                const propertyDiv = document.createElement('div');
+                propertyDiv.className = 'property';
+                propertyDiv.innerHTML = `
+                    <h2>${property.name}</h2>
+                    <img src="${property.image_url}" alt="${property.name}">
+                    <p>Description: ${property.description}</p>
+                    <p>Daily Rate: $${property.daily_rate}</p>
+                    <p>Transaction Fee: $10 (fixed)</p>
+                    <p>Total Cost for 12 days: $${property.total_costs[12]}</p>
+                    <p>Total Cost for 18 days: $${property.total_costs[18]}</p>
+                    <p>Total Cost for 30 days: $${property.total_costs[30]}</p>
+                    <p>Total Cost for 226 days: $${property.total_costs[226]}</p>
+                    <button onclick="showUpdateForm(${property.id})">Update Property</button>
+                    <div id="update-form-${property.id}" style="display:none;">
+                        <h3>Update Property</h3>
+                        <label>Name: <input type="text" id="name-${property.id}" value="${property.name}"></label><br>
+                        <label>Daily Rate: <input type="number" id="daily_rate-${property.id}" value="${property.daily_rate}"></label><br>
+                        <label>Image URL: <input type="text" id="image_url-${property.id}" value="${property.image_url}"></label><br>
+                        <label>Description: <textarea id="description-${property.id}">${property.description}</textarea></label><br>
+                        <button onclick="updateProperty(${property.id})">Save</button>
+                    </div>
+                `;
+                propertiesContainer.appendChild(propertyDiv);
+            });
+        }
+
+        function showUpdateForm(propertyId) {
+            document.getElementById(`update-form-${propertyId}`).style.display = 'block';
+        }
+
+        async function updateProperty(propertyId) {
+            const name = document.getElementById(`name-${propertyId}`).value;
+            const daily_rate = document.getElementById(`daily_rate-${propertyId}`).value;
+            const image_url = document.getElementById(`image_url-${propertyId}`).value;
+            const description = document.getElementById(`description-${propertyId}`).value;
+
+            const response = await fetch(`/update-property/${propertyId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name, daily_rate, image_url, description })
+            });
+
+            if (response.ok) {
+                fetchProperties();
+            } else {
+                alert('Failed to update property');
+            }
+        }
+
+        fetchProperties();
+    </script>
+</body>
+</html>
