@@ -1,0 +1,14 @@
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Integration Firebase BookEase - Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Integration Firebase BookEase - Set Up Firebase
+        env:
+          SERVICE_ACCOUNT_KEY: ${{ secrets.SERVICE_ACCOUNT_KEY }}
+        run: |
+          echo "$SERVICE_ACCOUNT_KEY" > serviceAccountKey.json
+          # Initialize Firebase with the service account key
+          java -jar your-app.jar
