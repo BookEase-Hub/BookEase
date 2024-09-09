@@ -361,7 +361,36 @@ public class ChatController {
 // FcmService.java
 @Service
 public class FcmService {
-    private String firebaseServerKey = "YOUR_FIREBASE_SERVER_KEY";
+    private String firebaseServerKey = { "type": "service_account", "project_id": 
+"integration-firebase-bookease", 
+"private_key_id": "c05704607bd5efdc896f132e447338b7b2babfb9", "private_key": 
+"-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCkn
+p2gdJx10SE7\ncZt64mYzrBCb+kWLfXVD7kGLicNBnSmNaZJQF9pJSK4btsKWZyrDkHyRO8auqfGD\nmbXI
+oEI7Kg4CLLnmq/WaZ3OWg3qLl65TIPBwHRUlKl/33Mc/rVi46uYKteOt11eq\nC8VLYNx4DS3fNNIF34u9d
+4tU3elcZtyZ0BPiaWdQ7qjqEpyFDUEhBY/pBHsGgREJ\nFn9208MwODYPZy/Z081mD4+h2rTOJqxoqCttsI
+Suxsi3KSRllrJYKGrVywkX/gmm\ntDugk6KTMsP1iDBWBIABPuXyKbE/2MS4P7ud5kMvj986PPhIYxlgt+
+G3OB3CeO+Y\nkxdfVCXpAgMBAAECggEAR4Pc6JMgUZKrxD5DlGv8iGAsywY75jB3nC5KbUtI9x1G\nqvd
+9J6xlGUco1ENeX6asDk+bviBg3QpZMJm7PlBY1YkcktdJX6u+w/hDX9T4jOI1\nSknaCmqoAABbtrtEGC
+a/j34EuAxyv9f4bpg0et22ibT4A6rXvtNxyrq/XfwV4Bzh\nMWXzuLsTCy1kKM7YUXt0R8oWmS1SQY2qR
+/0wzSuckTpoCn6/JlqoolrGHKwBt710\na72FWm0uS8KcsOyls3ey+ehdhgyNdcrmXsyZd475Ybf7Sh1Hu
++QD3W2AILF/yzl9\nLk+GKpamBUSXEEBjEpE6DLq5LutfE8T8x0yR1UGXjQKBgQDTcminipm1dj4rNa/K\
+niROq39Nxkmf1hxNcSfOFUGTT6aS6i4eFTAVaZe1sHZbeymL8qvBqnkSRTJsTypDc\nX+Rr2lNn8gZhA+1
+fkr7apyeM2QLVdLpBtyzYt1t274ACKoGetecc9WPwH384dXkr\npGzPTvYrXm5w/hPivDQju3XbNwKBg
+QDHTk8y4Wlj6apfq767Nu9Y/h/DXiyQJ2kR\nX0zDVYTHE16AY7QhzwY3G3kg2eQXAiBaP0T03PVPGS/L
+OkCW7nn5lLQiVGMqPN2i\nstTakP1fLGnPf80dgEzX4BJo50KAOLqVPwGV8cGg/mZpD4anTsgqdIyr7cP
+EdXKm\nTMx+yWnX3wKBgDRYPlA7n5Gsk/decwZQqO3EOzQCann91m0iYYa/QDa1wHHt2L7G\n8wxN71i
+0eoTs1VR3fMzoIVFXBY0AuJvVoVaR1dQFtk6OClV+noDCoKfdkTYGj5V1\nI0UDH0FySN5AZ5ZCsdQZa4Q
+mR/hSHI0RR16KzaYu2mhefc3DiaTO435BAoGAXEO5\nUEGfq1wpvh5groRw6w7Bn4zCLn3AGwW2IJs/W3V
+xAxik9B3Fr88tFPMprykR1xWB\nE6YSfeqYAInYCscdelfHyDiuq4f/xmjpNsF2Og/yb9enGegiKrGVdDDS
+zU71uU+w\nqTyAucnrmOlSGbPT4CuST6lDPnhseeYFqRAOypsCgYBl7yMJUQZs+wiUphSWLkqY\nSYXm5UrLgf
+aPXAGxLEn2G57x1Zq/FMKlHfwt4I5S/YVu5BSs/xNDrntA8LCbDMd2\n8+X5bXSqcBvq/OqNVKRylMeOFWYyh1br
+MANu2qB90FGx4in7fflfA61jSNQir6lO\nZSExvh4RKS742q3qxx82ug==\n-----END PRIVATE KEY-----\n", 
+"client_email": "firebase-adminsdk-jyq3c@integration-firebase-bookease.iam.gserviceaccount.com", 
+"client_id": "102274856883816127681", "auth_uri": "https://accounts.google.com/o/oauth2/auth", 
+"token_uri": "https://oauth2.googleapis.com/token", "auth_provider_x509_cert_url": 
+"https://www.googleapis.com/oauth2/v1/certs", "client_x509_cert_url": 
+"https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-
+jyq3c%40integration-firebase-bookease.iam.gserviceaccount.com", "universe_domain": "googleapis.com" };
 
     public void sendPushNotification(String deviceToken, String title, String body) throws Exception {
         URL url = new URL("https://fcm.googleapis.com/fcm/send");
@@ -392,6 +421,24 @@ public class FcmService {
         is.close();
 
         // Handle the response as needed
+    }
+}
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.FirebaseOptions;
+import com.google.auth.oauth2.GoogleCredentials;
+import java.io.FileInputStream;
+import java.io.IOException;
+
+public class FirebaseInitializer {
+    public static void initialize() throws IOException {
+        FileInputStream serviceAccount = new FileInputStream("serviceAccountKey.json");
+
+        FirebaseOptions options = new FirebaseOptions.Builder()
+            .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+            .setDatabaseUrl("https://integration-firebase-bookease.firebaseio.com")
+            .build();
+
+        FirebaseApp.initializeApp(options);
     }
 }
 
